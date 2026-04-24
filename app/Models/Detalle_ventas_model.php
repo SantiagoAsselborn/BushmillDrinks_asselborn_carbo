@@ -13,7 +13,7 @@ class Detalle_ventas_model extends Model
     protected $returnType = 'array'; 
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['id_detalle', 'id_venta', 'id_producto', 'detalle_cantidad', 'detalle_precio'];
+    protected $allowedFields = ['id_venta', 'id_bebida', 'detalle_cantidad', 'detalle_precio'];
 
     protected $useTimestamps = false;
     protected $createdField  = '';

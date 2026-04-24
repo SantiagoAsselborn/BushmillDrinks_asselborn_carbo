@@ -13,7 +13,7 @@ class Marca_model extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['marca_nombre'];
+    protected $allowedFields = ['nombre_marca'];
 
     protected $useTimestamps = false;
     protected $createdField = '';

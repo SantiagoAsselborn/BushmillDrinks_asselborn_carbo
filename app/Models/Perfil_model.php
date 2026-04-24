@@ -6,14 +6,14 @@ use CodeIgniter\Model;
 
 class Perfil_model extends Model
 {
-    protected $table = 'perfiles';
+    protected $table = 'perfil';
     protected $primaryKey = 'id_perfil';
 
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['perfil_descripcion'];
+    protected $allowedFields = ['descripcion_perfil'];
 
     protected $useTimestamps = false;
     protected $createdField = '';

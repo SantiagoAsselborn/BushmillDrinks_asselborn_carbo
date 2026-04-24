@@ -13,7 +13,7 @@ class Detalle_envio_model extends Model
     protected $returnType = 'array'; 
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['id_venta', 'envio_telefono', 'envio_mail', 'envio_provincia', 'envio_ciudad', 'envio_codigo', 'envio_direccion'];
+    protected $allowedFields = ['id_venta', 'id_direccion', 'costo_envio'];
 
     protected $useTimestamps = false;
     protected $createdField  = '';

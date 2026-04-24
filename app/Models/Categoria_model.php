@@ -6,14 +6,14 @@ use CodeIgniter\Model;
 
 class Categoria_model extends Model
 {
-    protected $table = 'categorias';
+    protected $table = 'categoria';
     protected $primaryKey = 'id_categoria';
 
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['categoria_nombre', 'categoria_descripcion'];
+    protected $allowedFields = ['nombre_categoria'];
 
     protected $useTimestamps = false;
     protected $createdField = '';

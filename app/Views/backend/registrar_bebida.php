@@ -1,196 +1,89 @@
-<div class="container mt-4">
-<h1 class="text-center mb-4"><?= isset($producto) ? 'Editar Bebida' : 'Registro de Bebida' ?></h1>
+<div class="container mt-4 mb-5">
+    <div class="card shadow-sm w-75 mx-auto">
+        <div class="card-header bg-dark text-white">
+            <h2 class="text-center mb-0"><?= isset($bebida) ? 'Editar Bebida' : 'Registro de Bebida' ?></h2>
+        </div>
+        <div class="card-body">
+            
+            <?php if (!empty($validation)): ?>
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        <?php foreach ($validation as $error): ?>
+                            <li><?= esc($error) ?></li>
+                        <?php endforeach ?>
+                    </ul>
+                </div>
+            <?php endif ?>
 
-<div class="container">
-    <div class="w-50 mx-auto">
-        <?php if (!empty($validation)): ?>
-            <div class="alert alert-danger" role="alert">
-                <ul>
-                    <?php foreach ($validation as $error): ?>
-                        <li><?= esc($error) ?></li>
-                    <?php endforeach ?>
-                </ul>
+            <?= form_open_multipart(isset($bebida) ? 'actualizar_bebida/'.$bebida['id_bebida'] : 'insertar_bebida') ?>
+            
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Nombre de la bebida</label>
+                    <input type="text" name="nombre_bebida" class="form-control" value="<?= set_value('nombre_bebida', $bebida['nombre_bebida'] ?? '') ?>" required>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Descripción</label>
+                    <textarea name="descripcion_bebida" class="form-control" rows="3"><?= set_value('descripcion_bebida', $bebida['descripcion_bebida'] ?? '') ?></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Precio ($)</label>
+                    <input type="number" step="0.01" name="precio_bebida" class="form-control" value="<?= set_value('precio_bebida', $bebida['precio_bebida'] ?? '') ?>" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Stock</label>
+                    <input type="number" name="stock_bebida" class="form-control" value="<?= set_value('stock_bebida', $bebida['stock_bebida'] ?? '') ?>" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Volumen (ml)</label>
+                    <input type="number" name="volumen_bebida" class="form-control" value="<?= set_value('volumen_bebida', $bebida['volumen_bebida'] ?? '') ?>">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Grado alcohólico (%)</label>
+                    <input type="number" step="0.1" name="grado_bebida" class="form-control" value="<?= set_value('grado_bebida', $bebida['grado_bebida'] ?? '') ?>">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Marca</label>
+                    <select name="id_marca" class="form-select">
+                        <option value="">Seleccione marca</option>
+                        <?php foreach($marca as $row): ?>
+                            <option value="<?= $row['id_marca'] ?>" <?= set_select('id_marca', $row['id_marca'], (isset($bebida) && $bebida['id_marca'] == $row['id_marca'])) ?>><?= esc($row['nombre_marca']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Categoría</label>
+                    <select name="id_categoria" class="form-select">
+                        <option value="">Seleccione categoría</option>
+                        <?php foreach ($categoria as $cat): ?>
+                            <option value="<?= $cat['id_categoria'] ?>" <?= set_select('id_categoria', $cat['id_categoria'], (isset($bebida) && $bebida['id_categoria'] == $cat['id_categoria'])) ?>><?= esc($cat['nombre_categoria']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="col-md-12">
+                    <label class="form-label">Imagen del producto</label>
+                    <input type="file" name="imagen_bebida" class="form-control">
+                    <?php if (isset($bebida['imagen_bebida'])): ?>
+                        <div class="mt-2">
+                            <small class="text-muted">Imagen actual:</small><br>
+                            <img src="<?= base_url('assets/upload/' . $bebida['imagen_bebida']) ?>" width="100" class="img-thumbnail">
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-        <?php endif ?>
 
-        <?php if(session('mensaje')): ?>
-            <div class="alert alert-success">
-                <?= session('mensaje'); ?>
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg"><?= isset($bebida) ? 'Actualizar Bebida' : 'Registrar Bebida' ?></button>
             </div>
-        <?php endif ?>
-
-        <?php
-            $url = isset($producto) ? 'actualizar_bebida/'.$producto['id_producto'] : 'insertar_bebida';
-            echo form_open_multipart($url);
-        ?>
-
-        <div class="form-group">
-            <label for="producto_nombre">Nombre de la bebida</label>
-            <?= form_input([
-                'name' => 'producto_nombre',
-                'id' => 'producto_nombre',
-                'class' => 'form-control',
-                'placeholder' => 'Ingrese el nombre de la bebida',
-                'value' => set_value('producto_nombre', $producto['producto_nombre'] ?? '')
-            ]) ?>
+            <?= form_close(); ?>
         </div>
-
-        <div class="form-group">
-            <label for="producto_descripcion">Descripción</label>
-            <?= form_textarea([
-                'name' => 'producto_descripcion',
-                'id' => 'producto_descripcion',
-                'class' => 'form-control',
-                'placeholder' => 'Describa la bebida',
-                'value' => set_value('producto_descripcion', $producto['producto_descripcion'] ?? '')
-            ]) ?>
-        </div>
-
-        <div class="form-group">
-            <label for="producto_precio">Precio</label>
-            <?= form_input([
-                'type' => 'number',
-                'step' => '0.01',
-                'min' => '0',
-                'name' => 'producto_precio',
-                'id' => 'producto_precio',
-                'class' => 'form-control',
-                'placeholder' => 'Ej: 1500.00',
-                'value' => set_value('producto_precio', $producto['producto_precio'] ?? '')
-            ]) ?>
-        </div>
-
-        <div class="form-group">
-            <label for="producto_stock">Stock</label>
-            <?= form_input([
-                'type' => 'number',
-                'min' => '0',
-                'name' => 'producto_stock',
-                'id' => 'producto_stock',
-                'class' => 'form-control',
-                'value' => set_value('producto_stock', $producto['producto_stock'] ?? '')
-            ]) ?>
-        </div>
-
-        <div class="form-group">
-            <label for="producto_volumen">Volumen (ml)</label>
-            <?= form_input([
-                'type' => 'number',
-                'min' => '0',
-                'name' => 'producto_volumen',
-                'id' => 'producto_volumen',
-                'class' => 'form-control',
-                'value' => set_value('producto_volumen', $producto['producto_volumen'] ?? '')
-            ]) ?>
-        </div>
-
-        <div class="form-group">
-            <label for="producto_grado">Grado alcohólico (%)</label>
-            <?= form_input([
-                'type' => 'number',
-                'step' => '0.1',
-                'min' => '0',
-                'max' => '100', 
-                'name' => 'producto_grado',
-                'id' => 'producto_grado',
-                'class' => 'form-control',
-                'value' => set_value('producto_grado', $producto['producto_grado'] ?? '')
-            ]) ?>
-        </div>
-
-        <div class="form-group">
-            <label for="producto_oferta">¿Está en oferta?</label>
-                <?php
-                    $oferta_opciones = [
-                    ''  => 'Seleccione una opción',
-                    '1' => 'Sí',
-                    '0' => 'No'
-                ];
-                echo form_dropdown(
-                'producto_oferta',
-                $oferta_opciones,
-                set_value('producto_oferta', $producto['producto_oferta'] ?? ''),
-                'class="form-control" id="producto_oferta"'
-                );
-                ?>
-        </div>
-
-        <div class="form-group d-none" id="grupo_descuento">
-            <label for="producto_descuento">Porcentaje de descuento (%)</label>
-                <?= form_input([
-                    'type' => 'number',
-                    'min' => '1',
-                    'max' => '100',
-                    'step' => '1',
-                    'name' => 'producto_descuento',
-                    'id' => 'producto_descuento',
-                    'class' => 'form-control',
-                    'placeholder' => 'Ej: 20',
-                    'value' => set_value('producto_descuento', $producto['producto_descuento'] ?? ''),
-                ]) ?>
-        </div>
-
-        <div class="form-group">
-            <label for="producto_imagen">Imagen del producto</label>
-            <?= form_upload([
-                'name' => 'producto_imagen',
-                'id' => 'producto_imagen'
-            ]) ?>
-            <?php if (isset($producto['producto_imagen'])): ?>
-                <p>Imagen actual:</p>
-                <img src="<?= base_url('assets/upload/' . $producto['producto_imagen']) ?>" width="150" class="mb-2">
-            <?php endif; ?>
-        </div>
-
-        <div class="form-group">
-            <label for="marca_id">Marca</label>
-            <?php
-                $lista = ['' => 'Seleccione una marca'];
-                foreach($marcas as $row){
-                    $lista[$row['id_marca']] = $row['marca_nombre'];
-                }
-                echo form_dropdown('marca_id', $lista, set_value('marca_id', $producto['marca_id'] ?? ''), 'class="form-control" id="marca_id"');
-            ?>
-        </div>
-
-        <div class="form-group">
-            <label for="categoria_id">Categoría</label>
-            <select name="categoria_id" id="categoria_id" class="form-control">
-                <option value="">Seleccione una categoría</option>
-                <?php foreach ($categorias as $categoria) : ?>
-                    <option value="<?= $categoria['id_categoria'] ?>" <?= set_select('categoria_id', $categoria['id_categoria'], (isset($producto) && $producto['categoria_id'] == $categoria['id_categoria'])) ?>>
-                        <?= esc($categoria['categoria_nombre']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-
-        <div class="form-group mt-3">
-            <?= form_submit('submit', isset($producto) ? 'Actualizar' : 'Agregar', "class='btn btn-success'") ?>
-        </div>
-
-        <?= form_close(); ?>
     </div>
 </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const selectOferta = document.getElementById('producto_oferta');
-    const grupoDescuento = document.getElementById('grupo_descuento');
-
-    function toggleDescuento() {
-        if (selectOferta.value === '1') {
-            grupoDescuento.classList.remove('d-none');
-        } else {
-            grupoDescuento.classList.add('d-none');
-        }
-    }
-
-    // Ejecutar al cargar
-    toggleDescuento();
-
-    // Ejecutar al cambiar
-    selectOferta.addEventListener('change', toggleDescuento);
-});
-</script>

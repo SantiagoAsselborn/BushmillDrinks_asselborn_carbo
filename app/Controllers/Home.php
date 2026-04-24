@@ -6,7 +6,7 @@ class Home extends BaseController
 {
     public function verComoCliente()
     {
-        if (session()->get('perfil_id') == 1) {
+        if (session()->get('id_perfil') == 1) {
             session()->set('modo_cliente', true);
         }
 
@@ -15,7 +15,7 @@ class Home extends BaseController
 
     public function volverAModoAdmin()
     {
-        if (session()->get('perfil_id') == 1) {
+        if (session()->get('id_perfil') == 1) {
             session()->remove('modo_cliente');
         }
 
@@ -24,15 +24,14 @@ class Home extends BaseController
 
     public function index(): string
     {
-        $productoModel = new \App\Models\Producto_model();
-        $productos = $productoModel
-            ->select('productos.*, marca.marca_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->where('producto_estado', 1)
-            ->where('producto_oferta', 1)
+        $bebidaModel = new \App\Models\Bebida_model();
+        $productos = $bebidaModel
+            ->select('bebida.*, marca.nombre_marca')
+            ->join('marca', 'bebida.id_marca = marca.id_marca')
+            ->where('bebida.estado_bebida', 1)
             ->findAll();
 
-        return $this->renderizarConNavbar('nueva_plantilla', ['productos' => $productos]);
+        return $this->renderizarConNavbar('nueva_plantilla', ['bebida' => $productos]);
     }
 
 
@@ -43,15 +42,14 @@ class Home extends BaseController
 
     public function inicio(): string
     {
-        $productoModel = new \App\Models\Producto_model();
-        $productos = $productoModel
-            ->select('productos.*, marca.marca_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->where('producto_estado', 1)
-            ->where('producto_oferta', 1)
+        $bebidaModel = new \App\Models\Bebida_model();
+        $productos = $bebidaModel
+            ->select('bebida.*, marca.nombre_marca')
+            ->join('marca', 'bebida.id_marca = marca.id_marca')
+            ->where('bebida.estado_bebida', 1)
             ->findAll();
 
-        return $this->renderizarConNavbar('nueva_plantilla', ['productos' => $productos]);
+        return $this->renderizarConNavbar('nueva_plantilla', ['bebida' => $productos]);
     }
 
 

@@ -6,14 +6,14 @@ use CodeIgniter\Model;
 
 class Mensajes_model extends Model
 {
-    protected $table = 'mensajes';
+    protected $table = 'mensaje';
     protected $primaryKey = 'id_mensaje';
 
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['mensaje_nombre', 'mensaje_mail', 'mensaje_telefono', 'mensaje_consulta', 'mensaje_leido'];
+    protected $allowedFields = ['nombre_mensaje', 'mail_mensaje', 'telefono_mensaje', 'consulta_mensaje', 'estado_mensaje'];
 
     protected $useTimestamps = false;
     protected $createdField = '';

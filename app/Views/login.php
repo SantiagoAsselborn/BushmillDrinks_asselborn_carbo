@@ -10,24 +10,24 @@
             <div class="mb-3">
                 <label for="email" class="form-label">Correo electrónico</label>
                 <input type="email" 
-                       class="form-control <?= isset($validation) && $validation->hasError('email') ? 'is-invalid' : '' ?>" 
+                       class="form-control <?= isset($validation) && $validation->hasError('email_usuario') ? 'is-invalid' : '' ?>" 
                        id="email" 
-                       name="email" 
-                       value="<?= set_value('email') ?>" 
+                       name="email_usuario" 
+                       value="<?= set_value('email_usuario') ?>" 
                        placeholder="ejemplo@correo.com">
-                <?php if (isset($validation) && $validation->hasError('email')): ?>
-                    <small class="text-danger"><?= $validation->getError('email') ?></small>
+                <?php if (isset($validation) && $validation->hasError('email_usuario')): ?>
+                    <small class="text-danger"><?= $validation->getError('email_usuario') ?></small>
                 <?php endif; ?>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>
                 <input type="password" 
-                       class="form-control <?= isset($validation) && $validation->hasError('password') ? 'is-invalid' : '' ?>" 
+                       class="form-control <?= isset($validation) && $validation->hasError('pass_usuario') ? 'is-invalid' : '' ?>" 
                        id="password" 
-                       name="password">
-                <?php if (isset($validation) && $validation->hasError('password')): ?>
-                    <small class="text-danger"><?= $validation->getError('password') ?></small>
+                       name="pass_usuario">
+                <?php if (isset($validation) && $validation->hasError('pass_usuario')): ?>
+                    <small class="text-danger"><?= $validation->getError('pass_usuario') ?></small>
                 <?php endif; ?>
             </div>
 

@@ -11,14 +11,15 @@ class Usuario_controller extends BaseController
 
     public function index()
     {
-        $productoModel = new \App\Models\Producto_model();
-        $productos = $productoModel
-            ->select('productos.*, marca.marca_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->where('producto_estado', 1)
-            ->where('producto_oferta', 1)
+        $bebidaModel = new \App\Models\Bebida_model();
+        $bebidas = $bebidaModel
+            ->select('bebida.*, marca.nombre_marca')
+            ->join('marca', 'bebida.id_marca = marca.id_marca')
+            ->join('promocion', 'bebida.id_bebida = promocion.id_bebida', 'left')
+            ->where('bebida.estado_bebida', 1)
+            ->where('promocion.estado_promocion', 1)
             ->findAll();
-        $this->renderizarConNavbar('nueva_plantilla', ['productos' => $productos]);
+        $this->renderizarConNavbar('nueva_plantilla', ['bebidas' => $bebidas]);
     }
 
 
@@ -29,19 +30,19 @@ class Usuario_controller extends BaseController
 
         $validation->setRules(
             [
-                'nombre' => 'required|max_length[50]|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
-                'apellido' => 'required|max_length[50]|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
-                'usuario' => 'required|max_length[20]|is_unique[usuarios.usuario]',
-                'email' => 'required|valid_email|max_length[100]|is_unique[usuarios.email]',
-                'pass' => 'required|min_length[5]|max_length[100]',
+                'nombre_usuario' => 'required|max_length[50]|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
+                'apellido_usuario' => 'required|max_length[50]|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
+                'usuario' => 'required|max_length[20]|is_unique[usuario.usuario]',
+                'email_usuario' => 'required|valid_email|max_length[100]|is_unique[usuario.email_usuario]',
+                'pass_usuario' => 'required|min_length[5]|max_length[100]',
             ],
             [   // Errores
-                'nombre' => [
+                'nombre_usuario' => [
                     'required' => 'El nombre es requerido',
                     'regex_match'  => 'El nombre solo puede contener letras y espacios',
                 ],
 
-                'apellido' => [
+                'apellido_usuario' => [
                     'required' => 'El apellido es requerido',
                     'regex_match'  => 'El apellido solo puede contener letras y espacios',
                 ],
@@ -52,13 +53,13 @@ class Usuario_controller extends BaseController
                     'is_unique' => 'El nombre de usuario no esta disponible',
                 ],
 
-                'email' => [
+                'email_usuario' => [
                     'required' => 'El correo electrónico es obligatorio',
                     'valid_email' => 'La dirección de correo debe ser válida',
                     'is_unique' => 'Ya existe una cuenta con este correo electronico'
                 ],
 
-                'pass'   => [
+                'pass_usuario'   => [
                     "required"      => 'La contraseña es requerida',
                     "max_length"    => 'La contraseña no debe superar los 100 caracteres',
                     "min_length" => 'La contraseña debe tener al menos 5 caracteres',
@@ -68,24 +69,24 @@ class Usuario_controller extends BaseController
 
         if ($validation->withRequest($request)->run() ){
             $data = [
-                    'nombre' => $this->request->getPost('nombre'),
-                    'apellido' => $this->request->getPost('apellido'),
+                    'nombre_usuario' => $this->request->getPost('nombre_usuario'),
+                    'apellido_usuario' => $this->request->getPost('apellido_usuario'),
                     'usuario' => $this->request->getPost('usuario'),
-                    'email' => $this->request->getPost('email'),
-                    'pass' => password_hash($this->request->getPost('pass'), PASSWORD_DEFAULT),
-                    'perfil_id' => $this->request->getPost('perfil_id'),
-                    'baja' => 'no'
+                    'email_usuario' => $this->request->getPost('email_usuario'),
+                    'pass_usuario' => password_hash($this->request->getPost('pass_usuario'), PASSWORD_DEFAULT),
+                    'id_perfil' => $this->request->getPost('id_perfil'),
+                    'baja' => '0'
             ];
 
                     $usuarioModel = new Usuario_model();
                     $usuarioModel->insert($data);
 
                     session()->set([
-                        'id_usuario' => $usuarioModel->getInsertID(),
-                        'nombre'     => $data['nombre'],
-                        'usuario'    => $data['usuario'],
-                        'perfil_id'  => $data['perfil_id'],
-                        'logueado'   => true
+                        'id_usuario'            => $usuarioModel->getInsertID(),
+                        'nombre_usuario'        => $data['nombre_usuario'],
+                        'usuario'               => $data['usuario'],
+                        'id_perfil'             => $data['id_perfil'],
+                        'logueado'              => true
                     ]);
                     return redirect()->to('/');
                         
@@ -99,53 +100,53 @@ class Usuario_controller extends BaseController
     }
 
     public function login()
-{
-    $validation = \Config\Services::validation();
-    $request = \Config\Services::request();
+    {
+        $validation = \Config\Services::validation();
+        $request = \Config\Services::request();
 
-    $validation->setRules([
-        'email' => 'required|valid_email',
-        'password' => 'required'
-    ], [
-        'email' => [
-            'required' => 'El correo electrónico es obligatorio',
-            'valid_email' => 'Debe ingresar un correo válido'
-        ],
-        'password' => [
-            'required' => 'La contraseña es obligatoria'
-        ]
-    ]);
-
-    if (!$validation->withRequest($request)->run()) {
-        return view('layout/navbar').view('login', [
-            'validation' => $validation
-        ]).view('layout/footer');
-    }
-
-    $email = $this->request->getPost('email');
-    $password = $this->request->getPost('password');
-
-    $usuarioModel = new \App\Models\Usuario_model();
-    $usuario = $usuarioModel->where('email', $email)->first();
-
-    if ($usuario && password_verify($password, $usuario['pass'])) {
-        if ($usuario['baja'] === 'si') {
-            return redirect()->to('/login')->with('error', 'Su cuenta está suspendida. Contacte al administrador.');
-        }
-
-        session()->set([
-            'id_usuario' => $usuario['id_usuario'],
-            'nombre'     => $usuario['nombre'],
-            'usuario'    => $usuario['usuario'],
-            'perfil_id'  => $usuario['perfil_id'],
-            'logueado'   => true
+        $validation->setRules([
+            'email_usuario' => 'required|valid_email',
+            'pass_usuario' => 'required'
+        ], [
+            'email_usuario' => [
+                'required' => 'El correo electrónico es obligatorio',
+                'valid_email' => 'Debe ingresar un correo válido'
+            ],
+            'pass_usuario' => [
+                'required' => 'La contraseña es obligatoria'
+            ]
         ]);
 
-        return redirect()->to('/');
-    } else {
-        return redirect()->to('/login')->with('error', 'Correo o contraseña inválidos.');
+        if (!$validation->withRequest($request)->run()) {
+            return view('layout/navbar').view('login', [
+                'validation' => $validation
+            ]).view('layout/footer');
+        }
+
+        $email = $this->request->getPost('email_usuario');
+        $password = $this->request->getPost('pass_usuario');
+
+        $usuarioModel = new \App\Models\Usuario_model();
+        $usuario = $usuarioModel->where('email_usuario', $email)->first();
+
+        if ($usuario && password_verify($password, $usuario['pass_usuario'])) {
+            if ($usuario['baja'] === '1') {
+                return redirect()->to('/login')->with('error', 'Su cuenta está suspendida. Contacte al administrador.');
+            }
+
+            session()->set([
+                'id_usuario'         => $usuario['id_usuario'],
+                'nombre_usuario'     => $usuario['nombre_usuario'],
+                'usuario'            => $usuario['usuario'],
+                'id_perfil'          => $usuario['id_perfil'],
+                'logueado'           => true
+            ]);
+
+            return redirect()->to('/');
+        } else {
+            return redirect()->to('/login')->with('error', 'Correo o contraseña inválidos.');
+        }
     }
-}
 
 
 
@@ -166,11 +167,11 @@ class Usuario_controller extends BaseController
     {
         $usuariosModel = new Usuario_model();
         $data = [
-            'nombre' => $this->request->getPost('nombre'),
-            'apellido' => $this->request->getPost('apellido'),
+            'nombre_usuario' => $this->request->getPost('nombre_usuario'),
+            'apellido_usuario' => $this->request->getPost('apellido_usuario'),
             'usuario' => $this->request->getPost('usuario'),
-            'email' => $this->request->getPost('email'),
-            'perfil_id' => $this->request->getPost('perfil_id'),
+            'email_usuario' => $this->request->getPost('email_usuario'),
+            'id_perfil' => $this->request->getPost('id_perfil'),
             'baja' => $this->request->getPost('baja')
         ];
         $usuariosModel->update($id, $data);
@@ -190,27 +191,27 @@ class Usuario_controller extends BaseController
         $request = \Config\Services::request();
         $validation->setRules(
             [
-                'mensaje_nombre' => 'required|max_length[50]',
-                'mensaje_mail' => 'required|valid_email|max_length[50]',
-                'mensaje_telefono' => 'required|max_length[50]',
-                'mensaje_consulta' => 'required|max_length[250]|min_length[10]',
+                'nombre_mensaje' => 'required|max_length[100]',
+                'mail_mensaje' => 'required|valid_email|max_length[100]',
+                'telefono_mensaje' => 'required|max_length[20]',
+                'consulta_mensaje' => 'required|max_length[250]|min_length[10]',
             ],
             [   // Errores
-                'mensaje_nombre' => [
+                'nombre_mensaje' => [
                     'required' => 'El nombre es requerido',
                 ],
 
-                'mensaje_mail' => [
+                'mail_mensaje' => [
                     'required' => 'El correo electrónico es obligatorio',
                     'valid_email' => 'La dirección de correo debe ser válida'
                 ],
 
-                'mensaje_telefono'   => [
+                'telefono_mensaje'   => [
                     "required"      => 'El telefono es obligatorio',
                     "max_length"    => 'El telefono no debe superar los 50 caracteres'
                     ],
 
-                'mensaje_consulta' => [
+                'consulta_mensaje' => [
                     'required' => 'La consulta es requerida',
                     'min_length' =>'La consulta debe tener como mínimo 10 caracteres',
                     'max_length'    => 'La consulta debe tener como máximo 250 caracteres',
@@ -220,10 +221,10 @@ class Usuario_controller extends BaseController
 
         if ($validation->withRequest($request)->run() ){
             $data = [
-                'mensaje_nombre' => $request->getPost('mensaje_nombre'),
-                'mensaje_mail' => $request->getPost('mensaje_mail'),
-                'mensaje_telefono' => $request->getPost('mensaje_telefono'),
-                'mensaje_consulta' => $request->getPost('mensaje_consulta') 
+                'nombre_mensaje' => $request->getPost('nombre_mensaje'),
+                'mail_mensaje' => $request->getPost('mail_mensaje'),
+                'telefono_mensaje' => $request->getPost('telefono_mensaje'),
+                'consulta_mensaje' => $request->getPost('consulta_mensaje') 
                     ];
 
                     $mensajesModel = new Mensajes_model();
@@ -241,7 +242,7 @@ class Usuario_controller extends BaseController
 
     public function listarUsuarios()
     {
-        if (session('perfil_id') != 1) {
+        if (session('id_perfil') != 1) {
             return redirect()->to('/');
         }
         $usuarioModel = new Usuario_model();
@@ -251,11 +252,11 @@ class Usuario_controller extends BaseController
         $query = $usuarioModel;
 
         if (!empty($perfil)) {
-            $query = $query->where('perfil_id', $perfil);
+            $query = $query->where('id_perfil', $perfil);
         }
 
         if (!empty($email)) {
-            $query = $query->like('email', $email);
+            $query = $query->like('email_usuario', $email);
         }
 
         $data['usuarios'] = $query->findAll();
@@ -268,41 +269,41 @@ class Usuario_controller extends BaseController
 
     public function suspenderUsuario($id)
     {
-        if (session('perfil_id') != 1) {
+        if (session('id_perfil') != 1) {
             return redirect()->to('/');
         }
         $usuarioModel = new Usuario_model();
-        $usuarioModel->update($id, ['baja' => 'si']);
+        $usuarioModel->update($id, ['baja' => '1']);
         return redirect()->to('/usuarios');
     }
 
     public function habilitarUsuario($id)
     {
-        if (session('perfil_id') != 1) {
+        if (session('id_perfil') != 1) {
             return redirect()->to('/');
         }
         $usuarioModel = new Usuario_model();
-        $usuarioModel->update($id, ['baja' => 'no']);
+        $usuarioModel->update($id, ['baja' => '0']);
         return redirect()->to('/usuarios');
     }
 
     public function cambiarTipo($id)
     {
-        if (session('perfil_id') != 1) {
+        if (session('id_perfil') != 1) {
             return redirect()->to('/');
         }
         $usuarioModel = new Usuario_model();
         $usuario = $usuarioModel->find($id);
     
         // Cambiar entre admin (1) y usuario (2)
-        $nuevoTipo = ($usuario['perfil_id'] == 1) ? 2 : 1;
-        $usuarioModel->update($id, ['perfil_id' => $nuevoTipo]);
+        $nuevoTipo = ($usuario['id_perfil'] == 1) ? 2 : 1;
+        $usuarioModel->update($id, ['id_perfil' => $nuevoTipo]);
         return redirect()->to('/usuarios');
     }
 
     public function eliminarUsuario($id)
     {
-        if (session('perfil_id') != 1) {
+        if (session('id_perfil') != 1) {
             return redirect()->to('/');
         }
         // Evita que un admin se elimine a sí mismo
@@ -333,27 +334,27 @@ class Usuario_controller extends BaseController
         $validation = \Config\Services::validation();
         $usuarioModel = new \App\Models\Usuario_model();
 
-        $id_usuario = $request->getPost('id_usuario');
-        $nombre     = trim($request->getPost('nombre'));
-        $apellido   = trim($request->getPost('apellido'));
-        $usuario    = trim($request->getPost('usuario'));
-        $email      = trim($request->getPost('email'));
-        $pass       = $request->getPost('pass');
+        $id_usuario         = $request->getPost('id_usuario');
+        $nombre_usuario     = trim($request->getPost('nombre_usuario'));
+        $apellido_usuario   = trim($request->getPost('apellido_usuario'));
+        $usuario            = trim($request->getPost('usuario'));
+        $email_usuario      = trim($request->getPost('email_usuario'));
+        $pass_usuario       = $request->getPost('pass_usuario');
 
         // Reglas de validación
         $validation->setRules([
-            'nombre'   => 'required|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
-            'apellido' => 'required|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
+            'nombre_usuario'   => 'required|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
+            'apellido_usuario' => 'required|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
             'usuario'  => 'required|min_length[3]|max_length[30]',
-            'email'    => 'required|valid_email',
-            'pass'     => 'permit_empty|min_length[5]|max_length[100]',
+            'email_usuario'    => 'required|valid_email',
+            'pass_usuario'     => 'permit_empty|min_length[5]|max_length[100]',
         ],
         [   // Mensajes personalizados
-            'nombre' => [
+            'nombre_usuario' => [
                 'required' => 'El nombre es obligatorio',
                 'regex_match' => 'El nombre solo debe contener letras y espacios',
             ],
-            'apellido' => [
+            'apellido_usuario' => [
                 'required' => 'El apellido es obligatorio',
                 'regex_match' => 'El apellido solo debe contener letras y espacios',
             ],
@@ -362,11 +363,11 @@ class Usuario_controller extends BaseController
                 'min_length'  => 'El nombre de usuario no debe ser menor a 3 caracteres',
                 'max_length'  => 'El nombre de usuario no debe superar los 30 caracteres'
             ],
-            'email' => [
+            'email_usuario' => [
                 'required'     => 'El correo electrónico es obligatorio',
                 'valid_email'  => 'La dirección de correo debe ser válida'
             ],
-            'pass' => [
+            'pass_usuario' => [
                 'min_length'   => 'La contraseña debe tener al menos 5 caracteres',
                 'max_length'   => 'La contraseña no debe superar los 100 caracteres'
             ],
@@ -387,7 +388,7 @@ class Usuario_controller extends BaseController
                     .view('layout/footer');
             }
 
-            $existeEmail = $usuarioModel->where('email', $email)
+            $existeEmail = $usuarioModel->where('email_usuario', $email_usuario)
                                         ->where('id_usuario !=', $id_usuario)
                                         ->first();
             if ($existeEmail) {
@@ -401,29 +402,29 @@ class Usuario_controller extends BaseController
 
             // Preparar datos
             $datosActualizar = [
-                'nombre' => $nombre,
-                'apellido' => $apellido,
+                'nombre_usuario' => $nombre_usuario,
+                'apellido_usuario' => $apellido_usuario,
                 'usuario' => $usuario,
-                'email' => $email,
+                'email_usuario' => $email_usuario,
             ];
 
-            if (!empty($pass)) {
-                $datosActualizar['pass'] = password_hash($pass, PASSWORD_DEFAULT);
+            if (!empty($pass_usuario)) {
+                $datosActualizar['pass_usuario'] = password_hash($pass_usuario, PASSWORD_DEFAULT);
             }
 
             $usuarioModel->update($id_usuario, $datosActualizar);
             $session->set([
-                'nombre' => $nombre,
-                'apellido' => $apellido,
+                'nombre_usuario' => $nombre_usuario,
+                'apellido_usuario' => $apellido_usuario,
                 'usuario' => $usuario,
-                'email' => $email,  
+                'email_usuario' => $email_usuario,
                 ]);
             return redirect()->to('editar_perfil')->with('success', 'Perfil actualizado correctamente.');
 
         } else {
             $data['validation'] = $validation->getErrors();
             $data['usuario'] = $usuarioModel->find($id_usuario);
-            $data['categorias'] = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
+            $data['categoria'] = (new Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll();
             return view('layout/navbarCliente', $data)
                 .view('backend/editar_perfil', $data)
                 .view('layout/footer');

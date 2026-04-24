@@ -1,14 +1,15 @@
 <div class="container mt-5">
     <div class="text-center mb-4">
-        <h1 class="text-success fw-bold">✅ ¡Gracias por tu compra, <?= esc($usuario['nombre']) ?>!</h1>
-        <p>Te enviamos un correo a <strong><?= esc($envio['envio_mail']) ?></strong> con los detalles.</p>
+        <h1 class="text-success fw-bold">✅ ¡Gracias por tu compra, <?= esc($usuario['nombre_usuario']) ?>!</h1>
+        <p>Los detalles del pedido han sido registrados correctamente.</p>
     </div>
 
     <div class="card mb-4 shadow">
         <div class="card-header bg-dark text-white">📦 Datos de Envío</div>
         <div class="card-body">
-            <p><strong>Teléfono:</strong> <?= esc($envio['envio_telefono']) ?></p>
-            <p><strong>Dirección:</strong> <?= esc($envio['envio_direccion']) ?>, <?= esc($envio['envio_ciudad']) ?> (<?= esc($envio['envio_codigo']) ?>), <?= esc($envio['envio_provincia']) ?></p>
+            <p><strong>Dirección:</strong> <?= esc($envio['calle'] . ' ' . $envio['altura']) ?></p>
+            <p><strong>Ubicación:</strong> <?= esc($nombre_ciudad . ', ' . $nombre_provincia) ?></p>
+            <p><strong>Código Postal:</strong> <?= esc($envio['codigo_postal']) ?></p>
         </div>
     </div>
 

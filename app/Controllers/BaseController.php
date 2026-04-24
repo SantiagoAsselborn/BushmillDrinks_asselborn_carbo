@@ -63,7 +63,7 @@ abstract class BaseController extends Controller
 
         // Combinar $datos con categorías para que estén disponibles en TODAS las vistas
         $datosCombinados = array_merge(
-            ['categorias' => $this->obtenerCategoriasConProductosActivos()],
+            ['categorias'=> $this->obtenerCategoriasConProductosActivos()],
             $datos
         );
 
@@ -76,7 +76,7 @@ abstract class BaseController extends Controller
 
     protected function obtenerNavbar(): string
     {
-        $perfil = session()->get('perfil_id');
+        $perfil = session()->get('id_perfil');
 
         if (session()->get('logueado')) {
             if ($perfil == 1) {
@@ -94,14 +94,14 @@ abstract class BaseController extends Controller
 
     protected function obtenerCategoriasConProductosActivos(): array
     {
-        $productoModel = new \App\Models\Producto_model();
+        $productoModel = new \App\Models\Bebida_model();
 
         $resultados = $productoModel
-            ->select('categorias.id_categoria, categorias.categoria_nombre')
-            ->join('categorias', 'categorias.id_categoria = productos.categoria_id')
-            ->where('productos.producto_estado', 1)
-            ->groupBy('categorias.id_categoria, categorias.categoria_nombre')
-            ->orderBy('categorias.categoria_nombre', 'ASC') // ✅ Ordena alfabéticamente
+            ->select('categoria.id_categoria, categoria.nombre_categoria')
+            ->join('categoria', 'categoria.id_categoria = bebida.id_categoria')
+            ->where('bebida.estado_bebida', 1)
+            ->groupBy('categoria.id_categoria, categoria.nombre_categoria')
+            ->orderBy('categoria.nombre_categoria', 'ASC') // ✅ Ordena alfabéticamente
             ->findAll();
 
         return $resultados;

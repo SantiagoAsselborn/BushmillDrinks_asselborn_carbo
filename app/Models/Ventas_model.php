@@ -6,14 +6,14 @@ use CodeIgniter\Model;
 
 class Ventas_model extends Model
 {
-    protected $table = 'ventas';
+    protected $table = 'venta';
     protected $primaryKey = 'id_venta';
 
     protected $useAutoIncrement = true;
     protected $returnType = 'array'; 
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['id_cliente', 'venta_fecha'];
+    protected $allowedFields = ['id_usuario', 'fecha_venta', 'total_venta'];
 
     protected $useTimestamps = false;
     protected $createdField  = '';

@@ -15,30 +15,30 @@
                 <div class="col" style="margin-top: 20px;"> 
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" id="nombre" name="mensaje_nombre" placeholder="Tu nombre" value="<?=set_value('mensaje_nombre')?>">
-                        <?php if (isset($validation) && $validation->hasError('mensaje_nombre')): ?>
-                            <small class="text-danger"><?= $validation->getError('mensaje_nombre') ?></small>
+                        <input type="text" class="form-control" id="nombre" name="nombre_mensaje" placeholder="Tu nombre" value="<?=set_value('nombre_mensaje')?>">
+                        <?php if (isset($validation) && $validation->hasError('nombre_mensaje')): ?>
+                            <small class="text-danger"><?= $validation->getError('nombre_mensaje') ?></small>
                         <?php endif; ?>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Dirección de Email</label>
-                        <input type="email" class="form-control" id="email" name="mensaje_mail" placeholder="nombre@ejemplo.com" value="<?=set_value('mensaje_mail')?>">
-                        <?php if (isset($validation) && $validation->hasError('mensaje_mail')): ?>
-                            <small class="text-danger"><?= $validation->getError('mensaje_mail') ?></small>
+                        <input type="email" class="form-control" id="email" name="mail_mensaje" placeholder="nombre@ejemplo.com" value="<?=set_value('mail_mensaje')?>">
+                        <?php if (isset($validation) && $validation->hasError('mail_mensaje')): ?>
+                            <small class="text-danger"><?= $validation->getError('mail_mensaje') ?></small>
                         <?php endif; ?>
                     </div>
                     <div class="mb-3">
                         <label for="telefono" class="form-label">Número de teléfono</label>
-                        <input type="tel" class="form-control" id="telefono" name="mensaje_telefono" placeholder="Ejemplo: 3794 123456" value="<?=set_value('mensaje_telefono')?>">
-                        <?php if (isset($validation) && $validation->hasError('mensaje_telefono')): ?>
-                            <small class="text-danger"><?= $validation->getError('mensaje_telefono') ?></small>
+                        <input type="tel" class="form-control" id="telefono" name="telefono_mensaje" placeholder="Ejemplo: 3794 123456" value="<?=set_value('telefono_mensaje')?>">
+                        <?php if (isset($validation) && $validation->hasError('telefono_mensaje')): ?>
+                            <small class="text-danger"><?= $validation->getError('telefono_mensaje') ?></small>
                         <?php endif; ?>
                     </div>
                     <div class="mb-3">
                         <label for="consulta" class="form-label">Comentarios</label>
-                        <textarea class="form-control" id="consulta" name="mensaje_consulta" rows="3" value="<?=set_value('mensaje_consulta')?>"></textarea>
-                        <?php if (isset($validation) && $validation->hasError('mensaje_consulta')): ?>
-                            <small class="text-danger"><?= $validation->getError('mensaje_consulta') ?></small>
+                        <textarea class="form-control" id="consulta" name="consulta_mensaje" rows="3"><?= set_value('consulta_mensaje') ?></textarea>
+                        <?php if (isset($validation) && $validation->hasError('consulta_mensaje')): ?>
+                            <small class="text-danger"><?= $validation->getError('consulta_mensaje') ?></small>
                         <?php endif; ?>
                     </div>
                     <button type="submit" class="btn btn-secondary">Enviar</button>

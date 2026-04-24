@@ -2,21 +2,29 @@
 
 <div class="container mt-5">
     <h1 class="text-center mb-4">🛒 Carrito de Compras</h1>
+    
     <?php if (session()->getFlashdata('mensaje_carrito')): ?>
         <div class="alert alert-success text-center">
             <?= session('mensaje_carrito') ?>
         </div>
     <?php endif; ?>
 
-    <a href="<?= base_url('productos'); ?>" class="btn btn-outline-primary mb-4">← Seguir comprando</a>
-    <?php if (session()->getFlashdata('error_stock')): ?>
+    <?php if (session()->getFlashdata('error')): ?>
         <div class="alert alert-danger text-center">
-            <?= session()->getFlashdata('error_stock') ?>
+            <?= session('error') ?>
         </div>
     <?php endif; ?>
 
+    <?php if (session()->getFlashdata('error_stock')): ?>
+        <div class="alert alert-danger text-center">
+            <?= session('getFlashdata')('error_stock') ?>
+        </div>
+    <?php endif; ?>
+
+    <a href="<?= base_url('productos'); ?>" class="btn btn-outline-primary mb-4">← Seguir comprando</a>
+
     <?php if ($cart->contents() == NULL): ?>
-        <div class="alert alert-danger text-center">¡No tiene productos en el carrito!</div>
+        <div class="alert alert-info text-center">¡No tiene productos en el carrito!</div>
     <?php else: ?>
         <table class="table table-bordered table-hover align-middle text-center shadow-sm">
             <thead class="table-dark">
@@ -46,7 +54,7 @@
 
                         <td>
                             <form action="<?= base_url('actualizar_cantidad'); ?>" method="post" class="d-flex justify-content-center align-items-center gap-1">
-                                <input type="hidden" name="rowid" value="<?= $item['rowid']; ?>">
+                                <?= csrf_field() ?> <input type="hidden" name="rowid" value="<?= $item['rowid']; ?>">
                                 <button type="submit" name="accion" value="restar" class="btn btn-sm btn-outline-secondary" <?= $item['qty'] <= 1 ? 'disabled' : ''; ?>>−</button>
                                 <span class="px-2"><?= $item['qty']; ?></span>
                                 <button type="submit" name="accion" value="sumar" class="btn btn-sm btn-outline-secondary">+</button>

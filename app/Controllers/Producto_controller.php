@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\Producto_model;
+use App\Models\Bebida_model;
 use App\Models\Marca_model;
 use App\Models\Categoria_model;
 
@@ -11,58 +11,57 @@ class Producto_controller extends BaseController
 
     public function index()
     {
-        $productoModel = new \App\Models\Producto_model();
-        $productos = $productoModel
-            ->select('productos.*, marca.marca_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->where('producto_estado', 1)
-            ->where('producto_oferta', 1)
+        $bebidaModel = new \App\Models\Bebida_model();
+        $bebidas = $bebidaModel
+            ->select('bebida.*, marca.nombre_marca')
+            ->join('marca', 'bebida.id_marca = marca.id_marca')
+            ->where('bebida_estado', 1)
             ->findAll();
-        $this->renderizarConNavbar('nueva_plantilla', ['productos' => $productos]);
+        $this->renderizarConNavbar('nueva_plantilla', ['bebida' => $bebidas]);
     }
 
     public function catalogo()
     {
-        $productoModel = new Producto_model();
+        $bebidaModel = new Bebida_model();
 
         $marca = $this->request->getGet('marca');
         $categoria = $this->request->getGet('categoria');
         $precio_max = $this->request->getGet('precio_max');
 
-        $builder = $productoModel->builder()
-            ->select('productos.*, marca.marca_nombre, categorias.categoria_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->join('categorias', 'productos.categoria_id = categorias.id_categoria')
-            ->orderBy('categorias.categoria_nombre', 'ASC')
-            ->orderBy('producto_nombre', 'ASC')
-            ->where('productos.producto_estado', 1);
+        $builder = $bebidaModel->builder()
+            ->select('bebida.*, marca.nombre_marca, categoria.nombre_categoria')
+            ->join('marca', 'bebida.id_marca = marca.id_marca')
+            ->join('categoria', 'bebida.id_categoria = categoria.id_categoria')
+            ->orderBy('categoria.nombre_categoria', 'ASC')
+            ->orderBy('bebida.nombre_bebida', 'ASC')
+            ->where('bebida.estado_bebida', 1);
 
         if (!empty($marca)) {
-            $builder->like('marca.marca_nombre', $marca);
+            $builder->like('marca.nombre_marca', $marca);
         }
 
         if (!empty($categoria)) {
-            $builder->like('categorias.categoria_nombre', $categoria);
+            $builder->like('categoria.nombre_categoria', $categoria);
         }
 
         if (!empty($precio_max)) {
-            $builder->where('productos.producto_precio <=', $precio_max);
+            $builder->where('bebida.precio_bebida <=', $precio_max);
         }
 
-        $data['productos'] = $builder->get()->getResultArray();
-        $data['marcas'] = (new Marca_model())->findAll();
-        $data['categorias'] = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
+        $data['bebida'] = $builder->get()->getResultArray();
+        $data['marca'] = (new Marca_model())->findAll();
+        $data['categoria'] = (new Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll();
 
         $navbar = 'layout/navbar';
-        if (session()->has('perfil_id')) {
-            if (session('perfil_id') == 1) {
+        if (session()->has('id_perfil')) {
+            if (session('id_perfil') == 1) {
                 $navbar = session('modo_cliente') ? 'layout/navbarAdminVisitante' : 'layout/navbarAdmin';
-            } elseif (session('perfil_id') == 2) {
+            } elseif (session('id_perfil') == 2) {
                 $navbar = 'layout/navbarCliente';
             }
         }
 
-        return view($navbar, ['categorias' => $data['categorias']])
+        return view($navbar, ['categoria' => $data['categoria']])
             . view('catalogo', $data)
             . view('layout/footer');
     }
@@ -70,66 +69,66 @@ class Producto_controller extends BaseController
 
     public function detalle($id)
     {
-        $productoModel = new Producto_model();
-        $categorias = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
-        $producto = $productoModel
-            ->select('productos.*, marca.marca_nombre, categorias.categoria_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->join('categorias', 'productos.categoria_id = categorias.id_categoria')
-            ->where('productos.id_producto', $id)
-            ->where('productos.producto_estado', 1)
+        $bebidaModel = new Bebida_model();
+        $categoria = (new Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll();
+        $bebida= $bebidaModel
+            ->select('bebida.*, marca.nombre_marca, categoria.nombre_categoria')
+            ->join('marca', 'bebida.id_marca = marca.id_marca')
+            ->join('categoria', 'bebida.id_categoria = categoria.id_categoria')
+            ->where('bebida.id_bebida', $id)
+            ->where('bebida.estado_bebida', 1)
             ->first();
 
-        if (!$producto) {
-            return redirect()->to('/')->with('error', 'Producto no encontrado');
+        if (!$bebida) {
+            return redirect()->to('/')->with('error', 'Bebida no encontrada');
         }
 
         $navbar = 'layout/navbar';
-        if (session()->has('perfil_id')) {
-            if (session('perfil_id') == 1) {
+        if (session()->has('id_perfil')) {
+            if (session('id_perfil') == 1) {
                 $navbar = session('modo_cliente') ? 'layout/navbarAdminVisitante' : 'layout/navbarAdmin';
-            } elseif (session('perfil_id') == 2) {
+            } elseif (session('id_perfil') == 2) {
                 $navbar = 'layout/navbarCliente';
             }
         }
 
-        echo view($navbar, ['categorias' => $categorias]);
-        echo view('backend/detalle_bebidas', ['producto' => $producto]);
+        echo view($navbar, ['categoria' => $categoria]);
+        echo view('backend/detalle_bebidas', ['bebida' => $bebida]);
         echo view('layout/footer');
     }
 
 
     public function listarBebidas()
     {
-        if (session('perfil_id') != 1) {
+        if (session('id_perfil') != 1) {
             return redirect()->to('/');
         }
 
         $categoriaModel = new Categoria_model();
-        $productoModel = new Producto_model();
+        $bebidaModel = new Bebida_model();
 
         // Obtener filtros desde la URL
-        $categoriaId = $this->request->getGet('categoria_id');
+        $categoriaId = $this->request->getGet('id_categoria');
         $busqueda = $this->request->getGet('busqueda');
 
         // Construcción de la consulta
-        $productos = $productoModel
-            ->select('productos.*, marca.marca_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca');
+        $bebidas = $bebidaModel
+            ->select('bebida.*, marca.nombre_marca')
+            ->join('marca', 'bebida.id_marca = marca.id_marca');
 
         if (!empty($categoriaId)) {
-            $productos->where('productos.categoria_id', $categoriaId);
+            $bebidas->where('bebida.id_categoria', $categoriaId);
         }
 
         if (!empty($busqueda)) {
-            $productos->groupStart()
-                ->like('productos.producto_nombre', $busqueda)
-                ->orLike('marca.marca_nombre', $busqueda)
+            $bebidas->groupStart()
+                ->like('bebida.nombre_bebida', $busqueda)
+                ->orLike('marca.nombre_marca', $busqueda)
                 ->groupEnd();
         }
 
-        $data['productos'] = $productos->findAll();
-        $data['categorias'] = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
+        $data['bebidas'] = $bebidas->findAll();
+        $data['categorias'] = (new Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll();
 
         return view('layout/navbarAdmin', $data)
             . view('backend/listar_bebidas', $data)
@@ -139,11 +138,11 @@ class Producto_controller extends BaseController
 
     public function agregarBebida()
     {
-        if (session('perfil_id') != 1) return redirect()->to('/');
+        if (session('id_perfil') != 1) return redirect()->to('/');
         $marca = new Marca_model();
         $categoria = new Categoria_model();
-        $data['marcas'] = $marca->findAll();
-        $data['categorias'] = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
+        $data['marca'] = $marca->findAll();
+        $data['categoria'] = (new Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll();
         $data['titulo'] = 'Agregar Bebida';
         
         return view ('layout/navbarAdmin', ['categorias' => $categoria]).view('backend/registrar_bebida', $data).view('layout/footer');
@@ -151,180 +150,135 @@ class Producto_controller extends BaseController
 
    
     public function registrarBebida()
-{
-    if (session('perfil_id') != 1) return redirect()->to('/');
+    {
+        // 1. Verificación de seguridad
+        if (session('id_perfil') != 1) {
+            return redirect()->to('/');
+        }
 
-    $validation = \Config\Services::validation();
-    $request = \Config\Services::request();
+        $request = \Config\Services::request();
+        $validation = \Config\Services::validation();
+        $bebidaModel = new \App\Models\Bebida_model();
 
-    // Obtener si está en oferta y el descuento
-    $oferta = $request->getPost('producto_oferta');
-    $descuento = $request->getPost('producto_descuento');
+        // 2. Definición de Reglas de Validación (Ajustado a nuevas columnas)
+        $reglas = [
+            'nombre_bebida' => [
+                'rules' => 'required|min_length[3]',
+                'errors' => [
+                    'required' => 'El nombre de la bebida es obligatorio.',
+                    'min_length' => 'El nombre debe tener al menos 3 caracteres.'
+                ]
+            ],
+            'descripcion_bebida' => [
+                'rules' => 'required|min_length[5]',
+                'errors' => [
+                    'required' => 'La descripción es obligatoria.',
+                    'min_length' => 'La descripción debe tener al menos 5 caracteres.'
+                ]
+            ],
+            'precio_bebida' => [
+                'rules' => 'required|decimal|greater_than_equal_to[0]',
+                'errors' => [
+                    'required' => 'El precio es obligatorio.',
+                    'decimal' => 'El precio debe ser un número decimal.',
+                    'greater_than_equal_to' => 'El precio no puede ser negativo.'
+                ]
+            ],
+            'stock_bebida' => [
+                'rules' => 'required|integer|greater_than_equal_to[0]',
+                'errors' => [
+                    'required' => 'El stock es obligatorio.',
+                    'integer' => 'El stock debe ser un número entero.',
+                    'greater_than_equal_to' => 'El stock no puede ser negativo.'
+                ]
+            ],
+            'volumen_bebida' => [
+                'rules' => 'required|integer|greater_than_equal_to[0]',
+                'errors' => [
+                    'required' => 'El volumen es obligatorio.',
+                    'integer' => 'El volumen debe ser un número entero.',
+                    'greater_than_equal_to' => 'El volumen no puede ser negativo.'
+                ]
+            ],
+            'grado_bebida' => [
+                'rules' => 'required|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+                'errors' => [
+                    'required' => 'El grado alcohólico es obligatorio.',
+                    'decimal' => 'Debe ingresar un número decimal.',
+                    'less_than_equal_to' => 'No puede ser mayor a 100%.'
+                ]
+            ],
+            'id_marca' => [
+                'rules' => 'required|is_natural_no_zero',
+                'errors' => ['required' => 'Debe seleccionar una marca.']
+            ],
+            'id_categoria' => [
+                'rules' => 'required|is_natural_no_zero',
+                'errors' => ['required' => 'Debe seleccionar una categoría.']
+            ],
+            'imagen_bebida' => [
+                'rules' => 'uploaded[imagen_bebida]|is_image[imagen_bebida]|max_size[imagen_bebida,2048]',
+                'errors' => [
+                    'uploaded' => 'Debe subir una imagen.',
+                    'is_image' => 'El archivo debe ser una imagen válida.',
+                    'max_size' => 'La imagen no debe superar los 2 MB.'
+                ]
+            ]
+        ];
+        // 3. Ejecutar Validación
 
-    // Reglas básicas
-    $reglas = [
-    'producto_nombre' => [
-        'rules' => 'required|min_length[3]',
-        'errors' => [
-            'required' => 'El nombre de la bebida es obligatorio.',
-            'min_length' => 'El nombre debe tener al menos 3 caracteres.'
-        ]
-    ],
-    'producto_descripcion' => [
-        'rules' => 'required|min_length[5]',
-        'errors' => [
-            'required' => 'La descripción es obligatoria.',
-            'min_length' => 'La descripción debe tener al menos 5 caracteres.'
-        ]
-    ],
-    'producto_precio' => [
-        'rules' => 'required|decimal|greater_than_equal_to[0]',
-        'errors' => [
-            'required' => 'El precio es obligatorio.',
-            'decimal' => 'El precio debe ser un número decimal.',
-            'greater_than_equal_to' => 'El precio no puede ser negativo.'
-        ]
-    ],
-    'producto_stock' => [
-        'rules' => 'required|integer|greater_than_equal_to[0]',
-        'errors' => [
-            'required' => 'El stock es obligatorio.',
-            'integer' => 'El stock debe ser un número entero.',
-            'greater_than_equal_to' => 'El stock no puede ser negativo.'
-        ]
-    ],
-    'producto_volumen' => [
-        'rules' => 'required|integer|greater_than_equal_to[0]',
-        'errors' => [
-            'required' => 'El volumen es obligatorio.',
-            'integer' => 'El volumen debe ser un número entero.',
-            'greater_than_equal_to' => 'El volumen no puede ser negativo.'
-        ]
-    ],
-    'producto_grado' => [
-        'rules' => 'required|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
-        'errors' => [
-            'required' => 'El grado alcohólico es obligatorio.',
-            'decimal' => 'Debe ingresar un número decimal para el grado.',
-            'greater_than_equal_to' => 'El grado alcohólico no puede ser menor que 0.',
-            'less_than_equal_to' => 'El grado alcohólico no puede ser mayor a 100.'
-        ]
-    ],
-    'marca_id' => [
-        'rules' => 'required|is_natural_no_zero',
-        'errors' => [
-            'required' => 'Debe seleccionar una marca.',
-            'is_natural_no_zero' => 'La marca seleccionada no es válida.'
-        ]
-    ],
-    
-    'categoria_id' => [
-        'rules' => 'required|is_natural_no_zero',
-        'errors' => [
-            'required' => 'Debe seleccionar una categoría.',
-            'is_natural_no_zero' => 'La categoría seleccionada no es válida.'
-        ]
-    ],
-    'producto_imagen' => [
-    'rules' => 'uploaded[producto_imagen]|is_image[producto_imagen]|max_size[producto_imagen,2048]',
-    'errors' => [
-        'uploaded' => 'Debe subir una imagen del producto.',
-        'is_image' => 'El archivo debe ser una imagen válida (jpg, png, etc.).',
-        'max_size' => 'La imagen no debe superar los 2 MB.'
-    ]
-    ],
-    'producto_oferta' => [
-        'rules' => 'required|in_list[0,1]',
-        'errors' => [
-            'required' => 'Debe indicar si el producto está en oferta.',
-            'in_list' => 'Opción de oferta no válida.'
-        ]
-    ]
-];
-
-    // Regla condicional para descuento
-    if ($oferta == '1') {
-    $reglas['producto_descuento'] = [
-        'rules' => 'required|integer|greater_than_equal_to[1]|less_than_equal_to[100]',
-        'errors' => [
-            'required' => 'Debe ingresar un porcentaje de descuento.',
-            'integer' => 'El porcentaje de descuento debe ser un número entero.',
-            'greater_than_equal_to' => 'El descuento debe ser al menos 1%.',
-            'less_than_equal_to' => 'El descuento no puede superar el 100%.'
-        ]
-    ];
-} else {
-    $reglas['producto_descuento'] = [
-        'rules' => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[100]',
-        'errors' => [
-            'integer' => 'El porcentaje de descuento debe ser un número entero válido.',
-            'greater_than_equal_to' => 'El descuento debe ser al menos 1%.',
-            'less_than_equal_to' => 'El descuento no puede superar el 100%.'
-        ]
-    ];
-}
-
-    $validation->setRules($reglas);
-
-    if (!$validation->withRequest($request)->run()) {
-        $data['validation'] = $validation->getErrors();
-        $data['marcas'] = (new Marca_model())->findAll();
-        $data['categorias'] = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
-        return view('layout/navbarAdmin')
-            . view('backend/registrar_bebida', $data)
-            . view('layout/footer');
+    // 3. Ejecutar Validación
+    if (!$this->validate($reglas)) {
+        $data['validation'] = $this->validator->getErrors();
+        $data['marca'] = (new \App\Models\Marca_model())->findAll();
+        $data['categoria'] = (new \App\Models\Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll();
+        
+        return $this->renderizarConNavbar('backend/registrar_bebida', $data);
     }
 
-    $img = $request->getFile('producto_imagen');
+    // 4. Procesar Imagen
+    $img = $request->getFile('imagen_bebida');
     $nombre_aleatorio = $img->getRandomName();
     $img->move(ROOTPATH . 'assets/upload', $nombre_aleatorio);
 
-    $precio = $request->getPost('producto_precio');
-
-    $precio_oferta = null;
-    if ($oferta == '1' && $descuento > 0 && $descuento <= 100) {
-        $precio_oferta = round($precio * (1 - $descuento / 100), 2);
-    }
-
-    $data = [
-        'producto_nombre' => $request->getPost('producto_nombre'),
-        'producto_descripcion' => $request->getPost('producto_descripcion'),
-        'producto_precio' => $precio,
-        'producto_oferta_precio' => $precio_oferta,
-        'producto_stock' => $request->getPost('producto_stock'),
-        'producto_imagen' => $nombre_aleatorio,
-        'marca_id' => $request->getPost('marca_id'),
-        'producto_volumen' => $request->getPost('producto_volumen'),
-        'producto_grado' => $request->getPost('producto_grado'),
-        'categoria_id' => $request->getPost('categoria_id'),
-        'producto_oferta' => ($oferta == '1') ? 1 : 0
+    // 5. Preparar Datos para Inserción (Nombres de la tabla 'bebida')
+    $precio = $request->getPost('precio_bebida');
+    
+    $insertData = [
+        'nombre_bebida'      => $request->getPost('nombre_bebida'),
+        'descripcion_bebida' => $request->getPost('descripcion_bebida'),
+        'precio_bebida'      => $precio,
+        'stock_bebida'       => $request->getPost('stock_bebida'),
+        'imagen_bebida'      => $nombre_aleatorio,
+        'id_marca'           => $request->getPost('id_marca'),
+        'volumen_bebida'     => $request->getPost('volumen_bebida'),
+        'grado_bebida'       => $request->getPost('grado_bebida'),
+        'id_categoria'       => $request->getPost('id_categoria'),
+        'estado_bebida'      => 1 // Se registra como activa por defecto
     ];
 
-    $bebida = new Producto_model();
-    $bebida->insert($data);
+    $bebidaModel->insert($insertData);
 
-    return redirect()->to('agregar_bebida')->with('mensaje', "La bebida se registró correctamente!");
-}
-
-
+    return redirect()->to('gestionar_bebidas')->with('mensaje', "¡La bebida '{$insertData['nombre_bebida']}' se registró correctamente!");
+    }
 
     public function editar($id)
     {
-        if (session('perfil_id') != 1) return redirect()->to('/');
-        $productoModel = new Producto_model();
+        if (session('id_perfil') != 1) return redirect()->to('/');
+        $bebidaModel = new Bebida_model();
         $marcaModel = new Marca_model();
         $categoriaModel = new Categoria_model();
 
-        $producto = $productoModel->find($id);
+        $bebida = $bebidaModel->find($id);
 
-        if (!$producto) {
-            return redirect()->to(base_url('listar_bebidas'))->with('mensaje', 'Producto no encontrado.');
+        if (!$bebida) {
+            return redirect()->to(base_url('listar_bebidas'))->with('mensaje', 'Bebida no encontrada.');
         }
 
-        return view('layout/navbarAdmin', ['categorias' => $categoriaModel ->findAll()]).view('backend/registrar_bebida', [
-            'producto' => $producto,
-            'marcas' => $marcaModel->findAll(),
-            'categorias' => $categoriaModel->orderBy('categoria_nombre', 'ASC')->findAll(),
+        return view('layout/navbarAdmin', ['categoria' => $categoriaModel ->findAll()]).view('backend/registrar_bebida', [
+            'bebida' => $bebida,
+            'marca' => $marcaModel->findAll(),
+            'categoria' => $categoriaModel->orderBy('nombre_categoria', 'ASC')->findAll(),
             'validation' => []
         ]).view('layout/footer');
     }
@@ -332,18 +286,18 @@ class Producto_controller extends BaseController
 
     public function eliminar($id)
     {
-        if (session('perfil_id') != 1) return redirect()->to('/');
+        if (session('id_perfil') != 1) return redirect()->to('/');
 
-        (new Producto_model())->delete($id);
+        (new Bebida_model())->delete($id);
 
-        return redirect()->to('listar_bebidas')->with('mensaje', 'Producto eliminado correctamente.');
+        return redirect()->to('listar_bebidas')->with('mensaje', 'Bebida eliminada correctamente.');
     }
 
     public function deshabilitar($id)
-{
-        if (session('perfil_id') != 1) return redirect()->to('/');
-        $productoModel = new Producto_model();
-        $productoModel->update($id, ['producto_estado' => 0]);
+    {
+        if (session('id_perfil') != 1) return redirect()->to('/');
+        $bebidaModel = new Bebida_model();
+        $bebidaModel->update($id, ['estado_bebida' => 0]);
         session()->setFlashdata('mensaje', 'La bebida fue deshabilitada correctamente.');
         session()->setFlashdata('tipo_mensaje', 'warning'); // puede ser success, danger, info, warning
         return redirect()->to('gestionar_bebidas');
@@ -351,9 +305,9 @@ class Producto_controller extends BaseController
 
     public function habilitar($id)
     {
-        if (session('perfil_id') != 1) return redirect()->to('/');
-        $productoModel = new Producto_model();
-        $productoModel->update($id, ['producto_estado' => 1]);
+        if (session('id_perfil') != 1) return redirect()->to('/');
+        $bebidaModel = new Bebida_model();
+        $bebidaModel->update($id, ['estado_bebida' => 1]);
         session()->setFlashdata('mensaje', 'La bebida fue habilitada correctamente.');
         session()->setFlashdata('tipo_mensaje', 'success'); // puede ser success, danger, info, warning
         return redirect()->to('gestionar_bebidas');
@@ -361,37 +315,37 @@ class Producto_controller extends BaseController
 
     public function gestionarBebidas()
     {
-        if (session('perfil_id') != 1) return redirect()->to('/');
-
-        $productoModel = new \App\Models\Producto_model();
+        if (session('id_perfil') != 1) return redirect()->to('/');
+        
+        $bebidaModel = new \App\Models\Bebida_model();
         $categoriaModel = new \App\Models\Categoria_model();
 
         $busqueda = $this->request->getGet('busqueda');
         $categoriaSeleccionada = $this->request->getGet('categoria');
 
-        $productoModel
-            ->select('productos.*, marca.marca_nombre, categorias.categoria_nombre')
-            ->join('marca', 'productos.marca_id = marca.id_marca')
-            ->join('categorias', 'productos.categoria_id = categorias.id_categoria');
+        $bebidaModel
+            ->select('bebida.*, marca.nombre_marca, categoria.nombre_categoria')
+            ->join('marca', 'bebida.id_marca = marca.id_marca', 'left')
+            ->join('categoria', 'bebida.id_categoria = categoria.id_categoria', 'left');
 
         if ($busqueda) {
-            $productoModel->groupStart()
-                ->like('productos.producto_nombre', $busqueda)
-                ->orLike('marca.marca_nombre', $busqueda)
+            $bebidaModel->groupStart()
+                ->like('bebida.nombre_bebida', $busqueda)
+                ->orLike('marca.nombre_marca', $busqueda)
                 ->groupEnd();
         }
 
         if ($categoriaSeleccionada) {
-            $productoModel->where('productos.categoria_id', $categoriaSeleccionada);
+            $bebidaModel->where('bebida.id_categoria', $categoriaSeleccionada);
         }
 
-        $productos = $productoModel->findAll();
-        $categorias = $categoriaModel->orderBy('categoria_nombre', 'ASC')->findAll();
+        $bebidas = $bebidaModel->findAll();
+        $categorias = $categoriaModel->orderBy('nombre_categoria', 'ASC')->findAll();
 
         return view('layout/navbarAdmin', ['categorias' => $categorias])
             . view('backend/gestionar_bebidas', [
-                'productos' => $productos,
-                'categorias' => $categorias,
+                'bebidas' => $bebidas,
+                'categoria' => $categorias,
                 'busqueda' => $busqueda,
                 'categoriaSeleccionada' => $categoriaSeleccionada
             ])
@@ -401,178 +355,76 @@ class Producto_controller extends BaseController
     public function actualizarBebida($id)
 {
     helper(['form', 'url']);
-    if (session('perfil_id') != 1) return redirect()->to('/');
+    if (session('id_perfil') != 1) return redirect()->to('/');
 
-    $productoModel = new Producto_model();
-    $producto = $productoModel->find($id);
+    $bebidaModel = new \App\Models\Bebida_model();
+    $bebida = $bebidaModel->find($id);
 
-    if (!$producto) {
-        return redirect()->to('gestionar_bebidas')->with('mensaje', 'Producto no encontrado.');
+    if (!$bebida) {
+        return redirect()->to('gestionar_bebidas')->with('mensaje', 'Bebida no encontrada.');
     }
 
-    // Obtener valores antes de validar
     $request = \Config\Services::request();
-    $oferta = $request->getPost('producto_oferta');
-    $descuento = $request->getPost('producto_descuento');
 
-    // Reglas comunes
+    // 1. Reglas de validación: eliminamos 'uploaded' porque la imagen es opcional al editar
     $reglas = [
-    'producto_nombre' => [
-        'rules' => 'required|min_length[3]',
-        'errors' => [
-            'required' => 'El nombre de la bebida es obligatorio.',
-            'min_length' => 'El nombre debe tener al menos 3 caracteres.'
-        ]
-    ],
-    'producto_descripcion' => [
-        'rules' => 'required|min_length[5]',
-        'errors' => [
-            'required' => 'La descripción es obligatoria.',
-            'min_length' => 'La descripción debe tener al menos 5 caracteres.'
-        ]
-    ],
-    'producto_precio' => [
-        'rules' => 'required|decimal|greater_than_equal_to[0]',
-        'errors' => [
-            'required' => 'El precio es obligatorio.',
-            'decimal' => 'El precio debe ser un número decimal.',
-            'greater_than_equal_to' => 'El precio no puede ser negativo.'
-        ]
-    ],
-    'producto_stock' => [
-        'rules' => 'required|integer|greater_than_equal_to[0]',
-        'errors' => [
-            'required' => 'El stock es obligatorio.',
-            'integer' => 'El stock debe ser un número entero.',
-            'greater_than_equal_to' => 'El stock no puede ser negativo.'
-        ]
-    ],
-    'producto_volumen' => [
-        'rules' => 'required|integer|greater_than_equal_to[0]',
-        'errors' => [
-            'required' => 'El volumen es obligatorio.',
-            'integer' => 'El volumen debe ser un número entero.',
-            'greater_than_equal_to' => 'El volumen no puede ser negativo.'
-        ]
-    ],
-    'producto_grado' => [
-        'rules' => 'required|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
-        'errors' => [
-            'required' => 'El grado alcohólico es obligatorio.',
-            'decimal' => 'Debe ingresar un número decimal para el grado.',
-            'greater_than_equal_to' => 'El grado alcohólico no puede ser menor que 0.',
-            'less_than_equal_to' => 'El grado alcohólico no puede ser mayor a 100.'
-        ]
-    ],
-    'producto_imagen' => [
-    'rules' => 'permit_empty|is_image[producto_imagen]|max_size[producto_imagen,2048]',
-    'errors' => [
-        'is_image' => 'El archivo debe ser una imagen válida.',
-        'max_size' => 'La imagen no debe superar los 2 MB.'
-    ]
-    ],
-    'producto_oferta' => [
-        'rules' => 'required|in_list[0,1]',
-        'errors' => [
-            'required' => 'Debe indicar si el producto está en oferta.',
-            'in_list' => 'Opción de oferta no válida.'
-        ]
-    ]
-];
-
-
-    // Regla condicional para descuento
-    if ($oferta == '1') {
-    $reglas['producto_descuento'] = [
-        'rules' => 'required|integer|greater_than_equal_to[1]|less_than_equal_to[100]',
-        'errors' => [
-            'required' => 'Debe ingresar un porcentaje de descuento.',
-            'integer' => 'El porcentaje de descuento debe ser un número entero.',
-            'greater_than_equal_to' => 'El descuento debe ser al menos 1%.',
-            'less_than_equal_to' => 'El descuento no puede superar el 100%.'
-        ]
+        'nombre_bebida' => 'required|min_length[3]',
+        'descripcion_bebida' => 'required|min_length[5]',
+        'precio_bebida' => 'required|decimal|greater_than_equal_to[0]',
+        'stock_bebida' => 'required|integer|greater_than_equal_to[0]',
+        'volumen_bebida' => 'required|integer|greater_than_equal_to[0]',
+        'grado_bebida' => 'required|decimal|greater_than_equal_to[0]|less_than_equal_to[100]',
+        'id_marca' => 'required|is_natural_no_zero',
+        'id_categoria' => 'required|is_natural_no_zero',
     ];
-} else {
-    $reglas['producto_descuento'] = [
-        'rules' => 'permit_empty|integer|greater_than_equal_to[1]|less_than_equal_to[100]',
-        'errors' => [
-            'integer' => 'El porcentaje de descuento debe ser un número entero válido.',
-            'greater_than_equal_to' => 'El descuento debe ser al menos 1%.',
-            'less_than_equal_to' => 'El descuento no puede superar el 100%.'
-        ]
-    ];
-}
 
+    // Solo validamos la imagen SI el usuario eligió un archivo nuevo
+    if ($request->getFile('imagen_bebida')->isValid()) {
+        $reglas['imagen_bebida'] = 'is_image[imagen_bebida]|max_size[imagen_bebida,2048]';
+    }
 
-    // Validar
+    // 2. Validar (usamos withInput para no perder los datos escritos al fallar)
     if (! $this->validate($reglas)) {
-        $data['validation'] = $this->validator->getErrors();
-        $data['producto'] = $producto;
-        $data['marcas'] = (new Marca_model())->findAll();
-        $data['categorias'] = (new Categoria_model())->orderBy('categoria_nombre', 'ASC')->findAll();
+        $data = [
+            'bebida'     => $bebida,
+            'marcas'     => (new \App\Models\Marca_model())->findAll(),
+            'categorias' => (new \App\Models\Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll(),
+            'validation' => $this->validator
+        ];
+        
         return view('layout/navbarAdmin')
-            . view('backend/registrar_bebida', $data)
-            . view('layout/footer');
+             . view('backend/registrar_bebida', $data)
+             . view('layout/footer');
     }
 
-    $precio = (float) $request->getPost('producto_precio');
-
-    $precio_oferta = null;
-    if ($oferta == '1' && $descuento > 0 && $descuento <= 100) {
-        $precio_oferta = round($precio * (1 - $descuento / 100), 2);
-    }
-
+    // 3. Preparar datos
     $datos = [
-        'producto_nombre' => $request->getPost('producto_nombre'),
-        'producto_descripcion' => $request->getPost('producto_descripcion'),
-        'producto_precio' => $precio,
-        'producto_stock' => $request->getPost('producto_stock'),
-        'producto_volumen' => $request->getPost('producto_volumen'),
-        'producto_grado' => $request->getPost('producto_grado'),
-        'marca_id' => $request->getPost('marca_id'),
-        'categoria_id' => $request->getPost('categoria_id'),
-        'producto_oferta' => ($oferta == '1') ? 1 : 0,
-        'producto_oferta_precio' => $precio_oferta
+        'nombre_bebida'      => $request->getPost('nombre_bebida'),
+        'descripcion_bebida' => $request->getPost('descripcion_bebida'),
+        'precio_bebida'      => (float) $request->getPost('precio_bebida'),
+        'stock_bebida'       => $request->getPost('stock_bebida'),
+        'volumen_bebida'     => $request->getPost('volumen_bebida'),
+        'grado_bebida'  => $request->getPost('grado_bebida'),
+        'id_marca'           => $request->getPost('id_marca'),
+        'id_categoria'       => $request->getPost('id_categoria'),
     ];
 
-    // Imagen nueva (opcional)
-    $imagen = $request->getFile('producto_imagen');
+    // 4. Procesar imagen nueva solo si existe
+    $imagen = $request->getFile('imagen_bebida');
     if ($imagen && $imagen->isValid() && !$imagen->hasMoved()) {
         $nombreImagen = $imagen->getRandomName();
         $imagen->move('assets/upload', $nombreImagen);
 
         // Eliminar imagen anterior si existe
-        if (!empty($producto['producto_imagen']) && file_exists('assets/upload/' . $producto['producto_imagen'])) {
-            unlink('assets/upload/' . $producto['producto_imagen']);
+        if (!empty($bebida['imagen_bebida']) && file_exists('assets/upload/' . $bebida['imagen_bebida'])) {
+            unlink('assets/upload/' . $bebida['imagen_bebida']);
         }
-
-        $datos['producto_imagen'] = $nombreImagen;
+        $datos['imagen_bebida'] = $nombreImagen;
     }
 
-    // Actualizar producto
-    $productoModel->update($id, $datos);
+    // 5. Actualizar
+    $bebidaModel->update($id, $datos);
 
     return redirect()->to('gestionar_bebidas')->with('mensaje', 'Producto actualizado correctamente.');
 }
-
-
-
-    public function ofertas()
-    {
-        if (session('perfil_id') != 1) return redirect()->to('/');
-            $productoModel = new Producto_model();
-            $categoriaModel = new Categoria_model();
-            $categorias = $categoriaModel->orderBy('categoria_nombre', 'ASC')->findAll();
-            $productosOferta = $productoModel
-                ->select('productos.*, marca.marca_nombre')
-                ->join('marca', 'productos.marca_id = marca.id_marca')
-                ->where('producto_estado', 1)
-                ->where('producto_oferta', 1)
-                ->findAll();
-
-        return view('layout/navbarAdmin', ['categorias' => $categorias])
-            . view('ofertas', ['productos' => $productosOferta])
-            . view('layout/footer');
-    }
-
 }

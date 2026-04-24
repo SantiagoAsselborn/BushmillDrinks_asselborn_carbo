@@ -131,31 +131,28 @@
         OFERTAS
     </h1>
     <div class="row">
-        <?php foreach ($productos as $producto): ?>
-            <div class="col-md-4 mb-4"> <!-- 3 cards por fila -->
-                <div class="card h-100">
-                    <img src="<?= base_url('assets/upload/' . $producto['producto_imagen']) ?>" class="card-img-top" alt="<?= esc($producto['producto_nombre']) ?>">
-                    <div class="card-body">
-                        <h5 class="card-title"><?= esc($producto['producto_nombre']) ?></h5>
-                        <p class="card-text"><?= esc($producto['producto_descripcion']) ?></p>
-                        <p class="card-text">
-                            <?php if ($producto['producto_oferta'] == 1 && !empty($producto['producto_oferta_precio'])): ?>
-                                <span class="text-muted text-decoration-line-through">
-                                    $<?= number_format($producto['producto_precio'], 2, ',', '.') ?>
-                                </span><br>
-                                <span class="text-danger fw-bold">
-                                    $<?= number_format($producto['producto_oferta_precio'], 2, ',', '.') ?>
-                                </span>
-                            <?php else: ?>
+        <?php if (!empty($bebidas)): ?>
+            <?php foreach ($bebidas as $b): ?>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="<?= base_url('assets/upload/' . $b['imagen_bebida']) ?>" 
+                             class="card-img-top" 
+                             alt="<?= esc($b['nombre_bebida']) ?>">
+                        <div class="card-body">
+                            <h5 class="card-title"><?= esc($b['nombre_bebida']) ?></h5>
+                            <p class="card-text"><?= esc($b['descripcion_bebida']) ?></p>
+                            <p class="card-text">
                                 <span>
-                                    $<?= number_format($producto['producto_precio'], 2, ',', '.') ?>
+                                    $<?= number_format($b['precio_bebida'], 2, ',', '.') ?>
                                 </span>
-                            <?php endif; ?>
-                        </p>
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-center">No hay bebidas disponibles en este momento.</p>
+        <?php endif; ?>
     </div>
 </section>
 

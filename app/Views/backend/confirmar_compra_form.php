@@ -6,66 +6,83 @@
 
     <div class="card shadow-sm rounded-4 border-0">
         <div class="card-body p-4">
-            <form method="post" action="<?= base_url('confirmar_compra') ?>">
+            <?= form_open('confirmar_compra') ?>
+            <?= csrf_field() ?>
                 <div class="row g-4">
                     <div class="col-md-6">
                         <label for="telefono" class="form-label">📱 Teléfono</label>
-                        <input type="tel" class="form-control" id="telefono" name="envio_telefono" placeholder="Ej: 3794 123456" required value="<?= set_value('envio_telefono') ?>">
-                        <?php if (isset($validation) && $validation->hasError('envio_telefono')): ?>
-                            <div class="text-danger small"><?= $validation->getError('envio_telefono') ?></div>
-                        <?php endif; ?>
+                        <input type="tel" class="form-control" id="telefono" name="envio_telefono" required value="<?= set_value('envio_telefono') ?>">
                     </div>
 
                     <div class="col-md-6">
-                        <label for="email" class="form-label">✉️ Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" name="envio_mail" placeholder="nombre@ejemplo.com" required value="<?= set_value('envio_mail') ?>">
-                        <?php if (isset($validation) && $validation->hasError('envio_mail')): ?>
-                            <div class="text-danger small"><?= $validation->getError('envio_mail') ?></div>
-                        <?php endif; ?>
+                        <label for="direccion" class="form-label">🏠 Calle</label>
+                        <input type="text" class="form-control" id="direccion" name="calle" placeholder="Ej: Av. Siempreviva" required value="<?= set_value('calle') ?>">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="altura" class="form-label">#️⃣ Altura</label>
+                        <input type="number" class="form-control" id="altura" name="altura" placeholder="Ej: 742" required value="<?= set_value('altura') ?>">
                     </div>
 
-                    <div class="col-md-6">
-                        <label for="provincia" class="form-label">🌎 Provincia</label>
-                        <select name="envio_provincia" id="provincia" class="form-select" required>
-                            <option value="">-- Selecciona una provincia --</option>
-                            <?php
-                            $provincias = ["Buenos Aires", "Catamarca", "Chaco", "Chubut", "Córdoba", "Corrientes", "Entre Ríos", "Formosa", "Jujuy", "La Pampa", "La Rioja", "Mendoza", "Misiones", "Neuquén", "Río Negro", "Salta", "San Juan", "San Luis", "Santa Cruz", "Santa Fe", "Santiago del Estero", "Tierra del Fuego", "Tucumán"];
-                            foreach ($provincias as $prov):
-                            ?>
-                                <option value="<?= $prov ?>" <?= set_value('envio_provincia') === $prov ? 'selected' : '' ?>><?= $prov ?></option>
+                    <div class="col-md-4">
+                        <label for="id_provincia" class="form-label">📍 Provincia</label>
+                        <select id="id_provincia" class="form-select" onchange="filtrarCiudades()" required>
+                            <option value="">-- Seleccione una provincia --</option>
+                            <?php foreach ($provincias as $provincia): ?>
+                                <option value="<?= $provincia['id_provincia'] ?>">
+                                    <?= esc($provincia['nombre_provincia']) ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
-                    <div class="col-md-6">
-                        <label for="ciudad" class="form-label">🏙️ Ciudad</label>
-                        <input type="text" class="form-control" id="ciudad" name="envio_ciudad" placeholder="Ej: Resistencia" required value="<?= set_value('envio_ciudad') ?>">
-                        <?php if (isset($validation) && $validation->hasError('envio_ciudad')): ?>
-                            <div class="text-danger small"><?= $validation->getError('envio_ciudad') ?></div>
-                        <?php endif; ?>
+                    <div class="col-md-9">
+                        <label for="id_ciudad" class="form-label">🏙️ Ciudad</label>
+                            <select name="id_ciudad" id="id_ciudad" class="form-select" required>
+                                <option value="">-- Seleccione una ciudad --</option>
+                                <?php foreach ($ciudades as $ciudad): ?>
+                                    <option value="<?= $ciudad['id_ciudad'] ?>" 
+                                        data-provincia="<?= $ciudad['id_provincia'] ?>" 
+                                        style="display:none;" 
+                                        <?= set_select('id_ciudad', $ciudad['id_ciudad']) ?>>
+                                        <?= esc($ciudad['nombre_ciudad']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                         </select>
                     </div>
 
                     <div class="col-md-6">
                         <label for="codigo" class="form-label">📮 Código Postal</label>
-                        <input type="number" class="form-control" id="codigo" name="envio_codigo" placeholder="Ej: 3500" required value="<?= set_value('envio_codigo') ?>">
-                        <?php if (isset($validation) && $validation->hasError('envio_codigo')): ?>
-                            <div class="text-danger small"><?= $validation->getError('envio_codigo') ?></div>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label for="direccion" class="form-label">🏠 Dirección de Entrega</label>
-                        <input type="text" class="form-control" id="direccion" name="envio_direccion" placeholder="Ej: Av. Siempreviva 742" required value="<?= set_value('envio_direccion') ?>">
-                        <?php if (isset($validation) && $validation->hasError('envio_direccion')): ?>
-                            <div class="text-danger small"><?= $validation->getError('envio_direccion') ?></div>
-                        <?php endif; ?>
+                        <input type="number" class="form-control" id="codigo" name="codigo_postal" placeholder="Ej: 3500" required value="<?= set_value('codigo_postal') ?>">
                     </div>
 
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary px-4 py-2">Confirmar Envío</button>
                     </div>
                 </div>
-            </form>
+            <?= form_close() ?>
         </div>
     </div>
 </div>
+
+<script>
+function filtrarCiudades() {
+    var provinciaId = document.getElementById('id_provincia').value;
+    var ciudadSelect = document.getElementById('id_ciudad');
+    var opciones = ciudadSelect.getElementsByTagName('option');
+
+    // Resetear al mensaje inicial
+    ciudadSelect.value = "";
+
+    for (var i = 0; i < opciones.length; i++) {
+        var opt = opciones[i];
+        if (opt.value === "") continue; // Saltar la opción por defecto
+
+        if (opt.getAttribute('data-provincia') === provinciaId) {
+            opt.style.display = 'block';
+        } else {
+            opt.style.display = 'none';
+        }
+    }
+}
+</script>

@@ -34,7 +34,7 @@
                     <ul class="dropdown-menu" aria-labelledby="categoriasDropdown">
                         <?php if (isset($categorias) && is_array($categorias)): ?>
                             <?php foreach ($categorias as $categoria): 
-                                $nombre = $categoria['categoria_nombre'] ?? '';
+                                $nombre = $categoria['nombre_categoria'] ?? '';
                                 $id_categoria = strtolower($nombre);
                                 $id_categoria = preg_replace('/[^a-z0-9]+/', '-', $id_categoria);
                                 $id_categoria = trim($id_categoria, '-');
