@@ -35,6 +35,8 @@ $routes->get('ver_consultas', 'Mensaje_controller::verConsultas');
 $routes->get('eliminar_consulta/(:num)', "Mensaje_controller::eliminarConsulta/$1");
 $routes->get('detalle/(:num)', 'Producto_controller::detalle/$1');
 $routes->get('marcar_leido/(:num)', 'Mensaje_controller::marcar_leido/$1');
+$routes->post('registrar_marca', 'Producto_controller::registrarMarca');
+$routes->post('registrar_categoria', 'Producto_controller::registrarCategoria');
 
 // Gestión de bebidas (Admin)
 $routes->get('gestionar_bebidas', 'Producto_controller::gestionarBebidas');

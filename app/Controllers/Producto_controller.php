@@ -163,10 +163,11 @@ class Producto_controller extends BaseController
         // 2. Definición de Reglas de Validación (Ajustado a nuevas columnas)
         $reglas = [
             'nombre_bebida' => [
-                'rules' => 'required|min_length[3]',
+                'rules' => 'required|min_length[3]|is_unique[bebida.nombre_bebida]',
                 'errors' => [
                     'required' => 'El nombre de la bebida es obligatorio.',
-                    'min_length' => 'El nombre debe tener al menos 3 caracteres.'
+                    'min_length' => 'El nombre debe tener al menos 3 caracteres.',
+                    'is_unique' => 'El nombre de la bebida ya está en uso.'
                 ]
             ],
             'descripcion_bebida' => [
@@ -262,6 +263,38 @@ class Producto_controller extends BaseController
     return redirect()->to('gestionar_bebidas')->with('mensaje', "¡La bebida '{$insertData['nombre_bebida']}' se registró correctamente!");
     }
 
+    public function registrarMarca()
+    {
+    if (session('id_perfil') != 1) return redirect()->to('/');
+
+    $rules = [
+        'nombre_marca' => 'required|min_length[2]|is_unique[marca.nombre_marca]',
+    ];
+
+    if (!$this->validate($rules)) {
+        return redirect()->back()->with('error', 'La marca ya existe o es inválida.');
+    }
+
+    (new \App\Models\Marca_model())->save(['nombre_marca' => $this->request->getPost('nombre_marca')]);
+    return redirect()->back()->with('mensaje', 'Marca registrada con éxito.');
+    }
+
+    public function registrarCategoria()
+    {
+    if (session('id_perfil') != 1) return redirect()->to('/');
+
+    $rules = [
+        'nombre_categoria' => 'required|min_length[2]|is_unique[categoria.nombre_categoria]',
+    ];
+
+    if (!$this->validate($rules)) {
+        return redirect()->back()->with('error', 'La categoría ya existe o es inválida.');
+    }
+
+    (new \App\Models\Categoria_model())->save(['nombre_categoria' => $this->request->getPost('nombre_categoria')]);
+    return redirect()->back()->with('mensaje', 'Categoría registrada con éxito.');
+    }
+
     public function editar($id)
     {
         if (session('id_perfil') != 1) return redirect()->to('/');
@@ -342,9 +375,9 @@ class Producto_controller extends BaseController
         $bebidas = $bebidaModel->findAll();
         $categorias = $categoriaModel->orderBy('nombre_categoria', 'ASC')->findAll();
 
-        return view('layout/navbarAdmin', ['categorias' => $categorias])
+        return view('layout/navbarAdmin', ['categoria' => $categorias])
             . view('backend/gestionar_bebidas', [
-                'bebidas' => $bebidas,
+                'bebida' => $bebidas,
                 'categoria' => $categorias,
                 'busqueda' => $busqueda,
                 'categoriaSeleccionada' => $categoriaSeleccionada
@@ -368,7 +401,7 @@ class Producto_controller extends BaseController
 
     // 1. Reglas de validación: eliminamos 'uploaded' porque la imagen es opcional al editar
     $reglas = [
-        'nombre_bebida' => 'required|min_length[3]',
+        'nombre_bebida' => "required|min_length[3]|is_unique[bebida.nombre_bebida,id_bebida,$id]",
         'descripcion_bebida' => 'required|min_length[5]',
         'precio_bebida' => 'required|decimal|greater_than_equal_to[0]',
         'stock_bebida' => 'required|integer|greater_than_equal_to[0]',
@@ -377,7 +410,6 @@ class Producto_controller extends BaseController
         'id_marca' => 'required|is_natural_no_zero',
         'id_categoria' => 'required|is_natural_no_zero',
     ];
-
     // Solo validamos la imagen SI el usuario eligió un archivo nuevo
     if ($request->getFile('imagen_bebida')->isValid()) {
         $reglas['imagen_bebida'] = 'is_image[imagen_bebida]|max_size[imagen_bebida,2048]';
@@ -387,8 +419,8 @@ class Producto_controller extends BaseController
     if (! $this->validate($reglas)) {
         $data = [
             'bebida'     => $bebida,
-            'marcas'     => (new \App\Models\Marca_model())->findAll(),
-            'categorias' => (new \App\Models\Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll(),
+            'marca'     => (new \App\Models\Marca_model())->findAll(),
+            'categoria' => (new \App\Models\Categoria_model())->orderBy('nombre_categoria', 'ASC')->findAll(),
             'validation' => $this->validator
         ];
         
@@ -396,7 +428,6 @@ class Producto_controller extends BaseController
              . view('backend/registrar_bebida', $data)
              . view('layout/footer');
     }
-
     // 3. Preparar datos
     $datos = [
         'nombre_bebida'      => $request->getPost('nombre_bebida'),
@@ -404,7 +435,7 @@ class Producto_controller extends BaseController
         'precio_bebida'      => (float) $request->getPost('precio_bebida'),
         'stock_bebida'       => $request->getPost('stock_bebida'),
         'volumen_bebida'     => $request->getPost('volumen_bebida'),
-        'grado_bebida'  => $request->getPost('grado_bebida'),
+        'grado_bebida'       => $request->getPost('grado_bebida'),
         'id_marca'           => $request->getPost('id_marca'),
         'id_categoria'       => $request->getPost('id_categoria'),
     ];

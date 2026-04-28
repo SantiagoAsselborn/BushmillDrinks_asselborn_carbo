@@ -18,7 +18,7 @@
         <div class="col-md-4">
             <select name="categoria" class="form-select">
                 <option value="">Todas las categorías</option>
-                <?php foreach ($categorias as $cat): ?>
+                <?php foreach ($categoria as $cat): ?>
                     <option value="<?= $cat['id_categoria'] ?>" <?= (isset($categoriaSeleccionada) && $categoriaSeleccionada == $cat['id_categoria']) ? 'selected' : '' ?>>
                         <?= esc($cat['nombre_categoria']) ?>
                     </option>
@@ -36,7 +36,7 @@
     </div>
     <?= form_close() ?>
 
-    <?php if (empty($bebidas)): ?>
+    <?php if (empty($bebida)): ?>
         <div class="alert alert-warning text-center shadow-sm">
             No se encontraron bebidas con los filtros aplicados.
         </div>
@@ -56,7 +56,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($bebidas as $p): ?>
+                    <?php foreach ($bebida as $p): ?>
                         <tr>
                             <td class="text-center">
                                 <img src="<?= base_url('assets/upload/' . ($p['imagen_bebida'] ?: 'default.png')) ?>" 
