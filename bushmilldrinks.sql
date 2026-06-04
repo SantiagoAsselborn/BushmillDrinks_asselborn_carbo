@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 29-04-2026 a las 00:29:50
+-- Tiempo de generación: 04-06-2026 a las 19:23:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -46,20 +46,20 @@ CREATE TABLE `bebida` (
 --
 
 INSERT INTO `bebida` (`id_bebida`, `nombre_bebida`, `descripcion_bebida`, `precio_bebida`, `stock_bebida`, `imagen_bebida`, `volumen_bebida`, `grado_bebida`, `estado_bebida`, `id_categoria`, `id_marca`) VALUES
-(1, 'Fernet Branca', 'El fernet es una bebida alcohólica amarga del tipo amaro, elaborada a partir de hierbas como mirra, ruibarbo, manzanilla, cardamomo y azafrán.', 15500.00, 47, '1776958019_88eadd3d5d193315359f.jpg', 750, 39.00, 1, 1, 3),
-(2, 'Miller Six Pack', 'Es una cerveza tipo American Lager, famosa por su proceso de filtrado en frío cuatro veces, lo que le otorga un sabor suave, fresco y un color dorado brillante.', 13575.25, 30, '1777411676_27f942963b56248616cd.jpg', 473, 4.20, 1, 2, 4),
+(1, 'Fernet Branca', 'El fernet es una bebida alcohólica amarga del tipo amaro, elaborada a partir de hierbas como mirra, ruibarbo, manzanilla, cardamomo y azafrán.', 15500.00, 46, '1776958019_88eadd3d5d193315359f.jpg', 750, 39.00, 1, 1, 3),
+(2, 'Miller Six Pack', 'Es una cerveza tipo American Lager, famosa por su proceso de filtrado en frío cuatro veces, lo que le otorga un sabor suave, fresco y un color dorado brillante.', 13575.25, 29, '1777411676_27f942963b56248616cd.jpg', 473, 4.20, 1, 2, 4),
 (3, 'Chandon Aperitiff', 'Es un espumoso bitter, infusionado con naranjas amargas y otros ingredientes secretos, que se bebe con hielo como un verdadero aperitivo. Fácil de tomar, versátil, fresco y con un característico sabor', 16999.25, 38, '1776970890_542349fb3ca1a7b32410.webp', 750, 12.00, 1, 3, 8),
 (4, 'Bombay Shappire Sunset', 'Ideal para cócteles refrescantes o para disfrutar solo, Bombay Sunset London Dry se destaca por su versatilidad. La combinación de notas cítricas y un toque de especias crea una experiencia sensorial ', 42562.28, 25, '1776971074_d0eaf129ba29801e7d0f.webp', 700, 43.00, 1, 4, 10),
 (5, 'Luigi Bosca Cabernet Sauvignon', 'Aromas de frutas rojas y negras, violetas y chocolate. De gran estructura y cuerpo, un vino de carácter y exquisita elegancia.', 16500.00, 35, '1776971203_335786c02d6f78be44d2.webp', 750, 14.50, 1, 6, 13),
-(6, 'Gancia Americano', 'Aperitivo italiano de origen argentino, conocido por su sabor herbal, cítrico y ligeramente amargo. Es una mezcla de vino blanco, alcohol, extractos de hierbas aromáticas y azúcar, lo que le confiere ', 4600.55, 100, '1777407978_c3560bbeb93717d2866b.webp', 950, 15.00, 1, 1, 2),
+(6, 'Gancia Americano', 'Aperitivo italiano de origen argentino, conocido por su sabor herbal, cítrico y ligeramente amargo. Es una mezcla de vino blanco, alcohol, extractos de hierbas aromáticas y azúcar, lo que le confiere ', 4600.55, 99, '1777407978_c3560bbeb93717d2866b.webp', 950, 15.00, 1, 1, 2),
 (7, 'Quilmes Clásica - Six Pack', 'La cerveza de los argentinos por excelencia. Es una típica cerveza lager perfectamente equilibrada, transparente dorada, buen nivel de espuma y sabor.', 7996.56, 115, '1777408413_40aa7d12a4deba5e2f0a.jpg', 473, 4.90, 1, 2, 7),
-(9, 'Campari', 'Aperitivo de origen italiano, conocido por su característico color rojo intenso y su sabor amargo. Popularmente usado en la preparación de cócteles como el Negroni y el Campari Spritz.', 8300.55, 100, '1777410617_eab9821edaf7291e88e3.jpg', 750, 28.50, 1, 1, 18),
+(9, 'Campari', 'Aperitivo de origen italiano, conocido por su característico color rojo intenso y su sabor amargo. Popularmente usado en la preparación de cócteles como el Negroni y el Campari Spritz.', 8300.55, 99, '1777410617_eab9821edaf7291e88e3.jpg', 750, 28.50, 1, 1, 18),
 (10, 'Heineken - Six Pack', 'Siente y disfruta en todo lugar un verdadero toque de clase con una lata fría de Heineken, el sabor refrescante que se mantiene a salvo de la luz y el aire.\r\n', 13500.00, 99, '1777410711_60f913efc2755b0fe2aa.jpg', 473, 5.00, 1, 2, 19),
 (11, 'Quilmes Stout - Six Pack', 'Cerveza negra, de cuerpo y espuma cremosa. Su sabor dulce surge de las notas de chocolate y café provenientes del golpe de fuego que recibe la mata al momento de ser tostadas.', 9800.99, 75, '1777411804_dd8ec53b240e2e12ef76.jpg', 473, 4.80, 1, 2, 7),
 (12, 'Chandon Extra Brut', 'Es el gran clásico de Chandon. Las mejores uvas de Chardonnay y Pinot Noir permiten crear un espumoso fresco, frutado, elegante, cremoso y equilibrado. Se destaca por su fineza y precisión.', 17550.35, 90, '1777412064_c8cd9aa877173f52638b.jpg', 750, 12.90, 1, 3, 8),
 (13, 'Suter Extra Dulce', 'Producido en la prestigiosa región vitivinícola de Mendoza, Argentina, este espumante combina frescura, dulzura y aromas frutales, convirtiéndolo en el acompañante ideal para cualquier celebración o b', 5500.00, 120, '1777412302_34cdf2da4918211c2d35.webp', 750, 11.30, 1, 3, 20),
 (14, 'Nieto Senetiner Brut Nature', 'De ligero tono asalmonado, con burbujas pequeñas, que terminan en una corona fina y delicada de color blanca. De aromas complejos y frutados, con notas de frambuesa, praliné y pan tostado, fiel a la e', 11350.25, 85, '1777412409_c1ec29abbb8df8b0b54e.webp', 750, 11.80, 1, 3, 9),
-(15, 'Aconcagua Blue Edition', 'Se destaca por su composición de 7 botánicos que incluyen Bayas de Enebro, Semillas de Coriandro, Raíz de Angelica, Raíz de Regaliz, Almendra, Cassia y Cáscara de Limón, brindando un sabor único y dis', 13999.99, 50, '1777412584_d69e8122cb66ab599fdb.webp', 750, 37.00, 1, 4, 21),
+(15, 'Aconcagua Blue Edition', 'Se destaca por su composición de 7 botánicos que incluyen Bayas de Enebro, Semillas de Coriandro, Raíz de Angelica, Raíz de Regaliz, Almendra, Cassia y Cáscara de Limón, brindando un sabor único y dis', 13999.99, 48, '1777412584_d69e8122cb66ab599fdb.webp', 750, 37.00, 1, 4, 21),
 (16, 'Johnnie Walker Blue Label', 'Johnnie Walker Blue Label es más que un whisky; es una obra maestra que celebra la artesanía y la herencia de una de las marcas más icónicas del mundo. Como diría el querido Coco Basile: \"es un elixir', 523845.99, 20, '1777412861_029e2ce5f513e016dd5e.jpg', 750, 40.00, 1, 5, 11),
 (17, 'Luigi Bosca Malbec', 'Es un tinto de color rojo violáceo brillante. Sus aromas son intensos y amables, con notas que recuerdan a frutas rojas, y tonos algo florales y espe­ciados. En boca es generoso, fluido y expresivo, c', 18300.00, 87, '1777412922_a20b937271359ac9a80c.jpeg', 750, 14.00, 1, 6, 13),
 (18, 'Absolut Clasic', 'Se caracteriza por ser elaborado exclusivamente con ingredientes naturales y no incluye azúcar añadido. Se destaca por su pureza, ofreciendo un sabor rico, con cuerpo y complejo, pero a la vez suave y', 15000.00, 45, '1777413014_85fe4a9bb752fd555317.jpg', 500, 40.00, 1, 7, 14),
@@ -70,7 +70,7 @@ INSERT INTO `bebida` (`id_bebida`, `nombre_bebida`, `descripcion_bebida`, `preci
 (23, '100 Pipers Deluxe', 'Es un whisky escocés mezclado con notas ahumadas, producido por Pernod Ricard. La compañía dice que es el \"séptimo whisky escocés más grande del mundo\", 100 Pipers es una mezcla de entre 25 y 30 whisk', 12500.00, 98, '1777413660_cc33202d0699ece2f7f1.jpg', 750, 42.80, 1, 5, 24),
 (24, 'Macallan Double Cask 18', 'Es la joya de la destilería. Distinguido, sofisticado, lujo hecho whisky. Double Cask se refiere a los dos tipos de roble usados para su añejamiento. Se trata de barricas que previamente contuvieron j', 1138425.22, 10, '1777413748_6bf4e75245f92686ff47.webp', 700, 43.00, 1, 5, 25),
 (25, 'Rutini Malbec', 'Elaborado con uvas seleccionadas de los mejores viñedos, este Malbec presenta un color rojo intenso y profundo. En nariz, ofrece aromas complejos donde se entrelazan frutas rojas maduras, notas especi', 24550.00, 75, '1777413851_9e03c82b27810e69e9e8.webp', 750, 13.80, 1, 6, 26),
-(26, 'Cordero con Piel de Lobo Malbec', 'Es un Malbec joven muy bien elaborado, diferente por su aroma y sabor a frutos maduros. Con una acidez justa deja en boca un picor agradable con un final reforzado por su paso por madera.', 4850.00, 140, '1777413929_174f4d4acee09c05be8b.jpg', 750, 13.60, 1, 6, 27),
+(26, 'Cordero con Piel de Lobo Malbec', 'Es un Malbec joven muy bien elaborado, diferente por su aroma y sabor a frutos maduros. Con una acidez justa deja en boca un picor agradable con un final reforzado por su paso por madera.', 4850.00, 138, '1777413929_174f4d4acee09c05be8b.jpg', 750, 13.60, 1, 6, 27),
 (27, 'Trumpeter Malbec', 'De un impactante color violeta. Nariz frutal destacando ciruelas, cerezas y notas florales que nos recuerdan a las violetas. Posee gran cuerpo y su vivaz estructura acentúa sus taninos intensos que se', 6200.00, 45, '1777414053_847bce3d3b13a952bd4f.webp', 750, 13.00, 1, 6, 28),
 (28, 'Skyy Citrus', 'Se caracteriza por su sabor refrescante y afrutado, con notas predominantes de cítricos, y un acabado limpio. Está hecho con un vodka de alta calidad, destilado cuatro veces y filtrado tres veces, lo ', 8960.35, 88, '1777414370_0ecf69eebc98b5e7a76d.jpg', 750, 29.00, 1, 7, 29),
 (29, 'Smirnoff Clasico', 'Este galardonado vodka tiene un sabor robusto con un acabado seco para una máxima suavidad y claridad. Triplemente destilado y filtrado 10 veces, es perfecto con hielo o en tu cóctel favorito.', 7500.00, 120, '1777414516_2dd86d4fb1f081b05441.jpg', 700, 37.50, 1, 7, 30),
@@ -222,7 +222,12 @@ INSERT INTO `detalle_envio` (`id_envio`, `id_venta`, `id_direccion`, `costo_envi
 (4, 4, 4, 0.00),
 (5, 5, 5, 0.00),
 (6, 6, 6, 0.00),
-(7, 7, 7, 0.00);
+(7, 7, 7, 0.00),
+(8, 9, 8, 0.00),
+(9, 10, 9, 0.00),
+(10, 11, 10, 0.00),
+(11, 12, 11, 0.00),
+(12, 13, 12, 0.00);
 
 --
 -- Disparadores `detalle_envio`
@@ -264,7 +269,13 @@ INSERT INTO `detalle_ventas` (`id_detalle`, `id_venta`, `id_bebida`, `detalle_ca
 (6, 6, 1, 2, 15500.00),
 (7, 6, 3, 1, 16999.25),
 (8, 7, 1, 1, 15500.00),
-(9, 7, 3, 1, 16999.25);
+(9, 7, 3, 1, 16999.25),
+(10, 9, 15, 2, 13999.99),
+(11, 10, 26, 2, 4850.00),
+(12, 10, 1, 1, 15500.00),
+(13, 11, 9, 1, 8300.55),
+(14, 12, 2, 1, 13575.25),
+(15, 13, 6, 1, 4600.55);
 
 --
 -- Disparadores `detalle_ventas`
@@ -310,7 +321,12 @@ INSERT INTO `direccion` (`id_direccion`, `calle`, `altura`, `codigo_postal`, `id
 (4, 'Av. 3 de Abril', 1650, '3400', 2, 3),
 (5, 'Av. 3 de Abril', 1650, '3400', 2, 3),
 (6, 'Av. 3 de Abril', 1650, '3400', 2, 3),
-(7, 'Av. 3 de Abril', 1650, '3400', 2, 3);
+(7, 'Av. 3 de Abril', 1650, '3400', 2, 3),
+(8, 'Luzuriaga', 1282, '3400', 2, 3),
+(9, 'Luzuriaga', 1282, '3400', 2, 3),
+(10, 'Luzuriaga', 1282, '3400', 2, 3),
+(11, 'Luzuriaga', 1282, '3400', 2, 3),
+(12, 'Luzuriaga', 1282, '3400', 2, 3);
 
 --
 -- Disparadores `direccion`
@@ -373,6 +389,27 @@ INSERT INTO `marca` (`id_marca`, `nombre_marca`) VALUES
 (30, 'Smirnoff'),
 (31, 'Don Julio'),
 (32, 'El Bandido Negro');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `medio_pago`
+--
+
+CREATE TABLE `medio_pago` (
+  `id_medio_pago` int(11) NOT NULL,
+  `nombre_medio_pago` varchar(100) NOT NULL,
+  `estado_medio_pago` tinyint(1) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `medio_pago`
+--
+
+INSERT INTO `medio_pago` (`id_medio_pago`, `nombre_medio_pago`, `estado_medio_pago`) VALUES
+(1, 'Tarjeta', 1),
+(2, 'Transferencia', 1),
+(3, 'Efectivo', 1);
 
 -- --------------------------------------------------------
 
@@ -565,21 +602,27 @@ CREATE TABLE `venta` (
   `id_venta` int(11) NOT NULL,
   `id_usuario` int(11) NOT NULL,
   `fecha_venta` datetime NOT NULL DEFAULT current_timestamp(),
-  `total_venta` decimal(10,2) NOT NULL
+  `total_venta` decimal(10,2) NOT NULL,
+  `id_medio_pago` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `venta`
 --
 
-INSERT INTO `venta` (`id_venta`, `id_usuario`, `fecha_venta`, `total_venta`) VALUES
-(1, 2, '2026-04-23 16:50:11', 0.00),
-(2, 2, '2026-04-23 16:59:02', 31000.00),
-(3, 2, '2026-04-23 17:04:33', 15500.00),
-(4, 2, '2026-04-23 17:07:44', 15500.00),
-(5, 2, '2026-04-23 17:09:52', 15500.00),
-(6, 2, '2026-04-23 19:10:43', 47999.25),
-(7, 2, '2026-04-23 23:56:47', 32499.25);
+INSERT INTO `venta` (`id_venta`, `id_usuario`, `fecha_venta`, `total_venta`, `id_medio_pago`) VALUES
+(1, 2, '2026-04-23 16:50:11', 0.00, 1),
+(2, 2, '2026-04-23 16:59:02', 31000.00, 1),
+(3, 2, '2026-04-23 17:04:33', 15500.00, 1),
+(4, 2, '2026-04-23 17:07:44', 15500.00, 1),
+(5, 2, '2026-04-23 17:09:52', 15500.00, 1),
+(6, 2, '2026-04-23 19:10:43', 47999.25, 1),
+(7, 2, '2026-04-23 23:56:47', 32499.25, 1),
+(9, 2, '2026-06-04 15:00:22', 27999.98, 3),
+(10, 2, '2026-06-04 15:13:49', 25200.00, 2),
+(11, 2, '2026-06-04 15:19:53', 8300.55, 3),
+(12, 2, '2026-06-04 15:24:51', 13575.25, 2),
+(13, 2, '2026-06-04 15:28:40', 4600.55, 3);
 
 --
 -- Disparadores `venta`
@@ -650,6 +693,12 @@ ALTER TABLE `marca`
   ADD PRIMARY KEY (`id_marca`);
 
 --
+-- Indices de la tabla `medio_pago`
+--
+ALTER TABLE `medio_pago`
+  ADD PRIMARY KEY (`id_medio_pago`);
+
+--
 -- Indices de la tabla `mensaje`
 --
 ALTER TABLE `mensaje`
@@ -688,7 +737,8 @@ ALTER TABLE `usuario`
 --
 ALTER TABLE `venta`
   ADD PRIMARY KEY (`id_venta`),
-  ADD KEY `id_usuario` (`id_usuario`);
+  ADD KEY `id_usuario` (`id_usuario`),
+  ADD KEY `fk_venta_medio_pago` (`id_medio_pago`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -716,25 +766,31 @@ ALTER TABLE `ciudad`
 -- AUTO_INCREMENT de la tabla `detalle_envio`
 --
 ALTER TABLE `detalle_envio`
-  MODIFY `id_envio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_envio` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_ventas`
 --
 ALTER TABLE `detalle_ventas`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `direccion`
 --
 ALTER TABLE `direccion`
-  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_direccion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `marca`
 --
 ALTER TABLE `marca`
   MODIFY `id_marca` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+
+--
+-- AUTO_INCREMENT de la tabla `medio_pago`
+--
+ALTER TABLE `medio_pago`
+  MODIFY `id_medio_pago` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `mensaje`
@@ -770,7 +826,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `venta`
 --
 ALTER TABLE `venta`
-  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_venta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- Restricciones para tablas volcadas
@@ -826,6 +882,7 @@ ALTER TABLE `usuario`
 -- Filtros para la tabla `venta`
 --
 ALTER TABLE `venta`
+  ADD CONSTRAINT `fk_venta_medio_pago` FOREIGN KEY (`id_medio_pago`) REFERENCES `medio_pago` (`id_medio_pago`),
   ADD CONSTRAINT `venta_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuario` (`id_usuario`);
 COMMIT;
 
