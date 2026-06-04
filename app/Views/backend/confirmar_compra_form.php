@@ -56,6 +56,18 @@
                         <input type="number" class="form-control" id="codigo" name="codigo_postal" placeholder="Ej: 3500" required value="<?= set_value('codigo_postal') ?>">
                     </div>
 
+                    <div class="col-md-6">
+                        <label class="form-label">Medio de Pago</label>
+                            <select name="id_medio_pago" class="form-select" required>
+                                <option value="">Seleccione un medio de pago</option>
+                                    <?php foreach ($medios_pago as $medio): ?>
+                                        <option value="<?= $medio['id_medio_pago'] ?>">
+                                        <?= esc($medio['nombre_medio_pago']) ?>
+                                            </option>
+                                    <?php endforeach; ?>
+                            </select>
+                    </div>
+
                     <div class="col-12 d-flex justify-content-end">
                         <button type="submit" class="btn btn-primary px-4 py-2">Confirmar Envío</button>
                     </div>

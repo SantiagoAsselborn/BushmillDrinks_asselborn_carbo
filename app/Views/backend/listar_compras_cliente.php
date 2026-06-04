@@ -24,6 +24,7 @@
                                 <h5><i class="bi bi-geo-alt-fill me-2"></i> Envío</h5>
                                 <p class="mb-1"><strong>Dirección:</strong> <?= esc($venta['direccion_completa']) ?></p>
                                 <p class="mb-1"><strong>Código Postal:</strong> <?= esc($venta['codigo_postal']) ?></p>
+                                <p class="mb-0"><strong>Medio de Pago:</strong> <?= esc($venta['nombre_medio_pago']) ?></p>
                             </div>
 
                             <hr>

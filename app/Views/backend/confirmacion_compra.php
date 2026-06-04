@@ -10,6 +10,7 @@
             <p><strong>Dirección:</strong> <?= esc($envio['calle'] . ' ' . $envio['altura']) ?></p>
             <p><strong>Ubicación:</strong> <?= esc($nombre_ciudad . ', ' . $nombre_provincia) ?></p>
             <p><strong>Código Postal:</strong> <?= esc($envio['codigo_postal']) ?></p>
+            <p><strong>Medio de Pago:</strong> <?= esc($venta['nombre_medio_pago']) ?></p>
         </div>
     </div>
 
