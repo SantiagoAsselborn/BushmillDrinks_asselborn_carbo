@@ -4,16 +4,6 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-/**
- * @method bool insert(array $data = null, bool $returnID = true)
- * @method array|null find($id = null)
- * @method bool update($id = null, $data = null)
- * @method bool delete($id = null)
- * @method array|null first()
- * @method $this where($key, $value = null, bool $escape = null)
- * @method $this like($key, $match = null, $side = 'both', $escape = null)
- */
-
 class Marca_model extends Model
 {
     protected $table = 'marca';
