@@ -621,9 +621,7 @@ class Producto_controller extends BaseController
             ]
         );
 
-        // =====================================
-        // ACTUALIZAR IMAGEN
-        // =====================================
+        // ACTUALIZAMOS LA IMAGEN DE LA BEBIDA SI SE SUBIÓ UNA NUEVA    
 
         if (
             isset($datos['imagen_bebida'])
