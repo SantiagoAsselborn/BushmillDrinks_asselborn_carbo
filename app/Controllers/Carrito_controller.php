@@ -10,6 +10,7 @@ use App\Models\Ventas_model;
 use App\Models\Detalle_ventas_model;
 use App\Models\Detalle_envio_model;
 use App\Models\Medio_pago_model;
+use App\Libraries\Pagos\PagoFactory;
 
 class Carrito_controller extends BaseController
 {
@@ -158,12 +159,18 @@ class Carrito_controller extends BaseController
 
         $validation->setRules([
             'id_ciudad'     => 'required|is_natural_no_zero',
-            'id_medio_pago' => 'required|is_natural_no_zero',
+            'medio_pago' => 'required',
             'codigo_postal' => 'required|numeric|exact_length[4]',
             'calle'         => 'required|min_length[3]|max_length[100]',
             'altura'        => 'required|numeric'
         ]);
-
+        if (!$this->validate($validation->getRules())) {
+            dd(
+                'FALLÓ VALIDACIÓN',
+                $this->validator->getErrors(),
+                $this->request->getPost()
+            );
+        }
         if (!$this->validate($validation->getRules())) {
 
             $ciudadModel = new Ciudad_model();
@@ -183,7 +190,7 @@ class Carrito_controller extends BaseController
         $data = [
             'id_usuario'    => session('id_usuario'),
             'id_ciudad'     => $this->request->getPost('id_ciudad'),
-            'id_medio_pago' => $this->request->getPost('id_medio_pago'),
+            'medio_pago' => $this->request->getPost('medio_pago'),
             'codigo_postal' => $this->request->getPost('codigo_postal'),
             'calle'         => $this->request->getPost('calle'),
             'altura'        => $this->request->getPost('altura'),
@@ -222,9 +229,15 @@ class Carrito_controller extends BaseController
 
         $datos_envio = session()->get('datos_envio');
 
+        if (!$datos_envio) {
+            return redirect()->to('ordenar_compra')
+                ->with('error', 'Faltan los datos de envío.');
+        }
+
         // VALIDAR MEDIO DE PAGO
         $medioPago = $medioPagoModel
-            ->where('id_medio_pago', $datos_envio['id_medio_pago'])
+            ->where('LOWER(nombre_medio_pago)', strtolower($datos_envio['medio_pago']))
+            ->where('estado_medio_pago', 1)
             ->first();
 
         if (!$medioPago) {
@@ -239,12 +252,29 @@ class Carrito_controller extends BaseController
             $totalVenta += ($item['price'] * $item['qty']);
         }
 
-        // VALIDAR STOCK
+        // PROCESAR PAGO CON STRATEGY
+        $estrategiaPago = \App\Libraries\Pagos\PagoFactory::crear($medioPago['nombre_medio_pago']);
+
+        if (!$estrategiaPago->procesarPago($totalVenta)) {
+            return redirect()->to('ordenar_compra')
+                ->with('error', 'No se pudo procesar el pago.');
+        }
+
+        // PROCEDIMIENTO 3 - VALIDAR STOCK ANTES DE INSERTAR (sp_validar_stock_bebida)
+        $db = \Config\Database::connect();
+
         foreach ($cart1 as $item) {
 
-            $bebida = $bebidaModel->find($item['id']);
+            try {
 
-            if (!$bebida || $bebida['stock_bebida'] < $item['qty']) {
+                $db->query(
+                    "CALL sp_verificar_stock_bebida(?, ?)",
+                    [
+                        $item['id'],
+                        $item['qty']
+                    ]
+                );
+            } catch (\Exception $e) {
 
                 return redirect()->to('ver_carrito')
                     ->with(
@@ -257,7 +287,7 @@ class Carrito_controller extends BaseController
         // INSERTAR VENTA
         $id_venta = $ventaModel->insert([
             'id_usuario'    => session('id_usuario'),
-            'id_medio_pago' => (int)$datos_envio['id_medio_pago'],
+            'id_medio_pago' => (int)$medioPago['id_medio_pago'],
             'fecha_venta'   => date('Y-m-d H:i:s'),
             'total_venta'   => $totalVenta
         ]);
@@ -291,45 +321,43 @@ class Carrito_controller extends BaseController
             $bebida = $bebidaModel->find($item['id']);
 
             $bebidaModel->update($item['id'], [
-                'stock_bebida' =>
-                    $bebida['stock_bebida'] - $item['qty']
+                'stock_bebida' => $bebida['stock_bebida'] - $item['qty']
             ]);
         }
 
-            // Buscar ciudad y provincia
-            $ciudadData = $ciudadModel->find($datos_envio['id_ciudad']);
-            $nombreCiudad = $ciudadData ? $ciudadData['nombre_ciudad'] : 'No especificada';
+        // Buscar ciudad y provincia
+        $ciudadData = $ciudadModel->find($datos_envio['id_ciudad']);
+        $nombreCiudad = $ciudadData ? $ciudadData['nombre_ciudad'] : 'No especificada';
 
-            $provinciaData = $provinciaModel->find($ciudadData['id_provincia']);
-            $nombreProvincia = $provinciaData ? $provinciaData['nombre_provincia'] : 'No especificada';
+        $provinciaData = $ciudadData
+            ? $provinciaModel->find($ciudadData['id_provincia'])
+            : null;
 
-            // Buscar medio de pago
-            $medioPago = $medioPagoModel->find($datos_envio['id_medio_pago']);
+        $nombreProvincia = $provinciaData ? $provinciaData['nombre_provincia'] : 'No especificada';
 
-            // Limpiar carrito
-            $cart->destroy();
-            session()->remove('datos_envio');
+        // Limpiar carrito
+        $cart->destroy();
+        session()->remove('datos_envio');
 
-            // Retornar vista
-            return $this->renderizarConNavbar('backend/confirmacion_compra', [
-                'usuario' => [
-                        'nombre_usuario'   => session('nombre_usuario'),
-                        'apellido_usuario' => session('apellido_usuario'),
-                        'email_usuario'    => session('email_usuario')
-                ],
+        return $this->renderizarConNavbar('backend/confirmacion_compra', [
+            'usuario' => [
+                'nombre_usuario'   => session('nombre_usuario'),
+                'apellido_usuario' => session('apellido_usuario'),
+                'email_usuario'    => session('email_usuario')
+            ],
 
-                'venta' => [
-                    'id_venta' => $id_venta,
-                    'nombre_medio_pago' => $medioPago['nombre_medio_pago']
-                ],
+            'venta' => [
+                'id_venta' => $id_venta,
+                'nombre_medio_pago' => $medioPago['nombre_medio_pago']
+            ],
 
-                'envio' => $datos_envio,
-                'nombre_provincia' => $nombreProvincia,
-                'nombre_ciudad' => $nombreCiudad,
-                'carrito' => $cart1,
-                'total' => $totalVenta
-            ]);
-        }
+            'envio' => $datos_envio,
+            'nombre_provincia' => $nombreProvincia,
+            'nombre_ciudad' => $nombreCiudad,
+            'carrito' => $cart1,
+            'total' => $totalVenta
+        ]);
+    }
 
     // =========================
     // LISTAR VENTAS ADMIN
@@ -394,23 +422,21 @@ class Carrito_controller extends BaseController
             $ventasAgrupadas[] = [
                 'id_venta' => $venta['id_venta'],
                 'fecha' => $venta['fecha_venta'],
-                'cliente' =>
-                    ($venta['nombre_usuario'] ?? '') . ' ' .
+                'cliente' => ($venta['nombre_usuario'] ?? '') . ' ' .
                     ($venta['apellido_usuario'] ?? ''),
 
                 'email' => $venta['email_usuario'] ?? '-',
 
-                'direccion' =>
-                    ($venta['calle'] ?? '-') . ' ' .
+                'direccion' => ($venta['calle'] ?? '-') . ' ' .
                     ($venta['altura'] ?? '-') . ', ' .
                     ($venta['nombre_ciudad'] ?? '-') . ' (' .
                     ($venta['nombre_provincia'] ?? '-') . ')',
 
                 'codigo_postal' =>
-                    $venta['codigo_postal'] ?? '-',
+                $venta['codigo_postal'] ?? '-',
 
                 'medio_pago' =>
-                    $venta['nombre_medio_pago'] ?? 'No especificado',
+                $venta['nombre_medio_pago'] ?? 'No especificado',
 
                 'total' => $venta['total_venta'],
 
@@ -544,20 +570,19 @@ class Carrito_controller extends BaseController
                 'id_venta' => $venta['id_venta'],
 
                 'nombre_medio_pago' =>
-                    $venta['nombre_medio_pago'] ?? 'No especificado',
+                $venta['nombre_medio_pago'] ?? 'No especificado',
 
                 'fecha' => $venta['fecha_venta'],
 
                 'total' => $total_venta,
 
-                'direccion_completa' =>
-                    ($venta['calle'] ?? '-') . ' ' .
+                'direccion_completa' => ($venta['calle'] ?? '-') . ' ' .
                     ($venta['altura'] ?? '-') . ', ' .
                     ($venta['nombre_ciudad'] ?? '-') . ' (' .
                     ($venta['nombre_provincia'] ?? '-') . ')',
 
                 'codigo_postal' =>
-                    $venta['codigo_postal'] ?? '-',
+                $venta['codigo_postal'] ?? '-',
 
                 'productos' => $productos
             ];

@@ -57,14 +57,12 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label">Medio de Pago</label>
-                            <select name="id_medio_pago" class="form-select" required>
-                                <option value="">Seleccione un medio de pago</option>
-                                    <?php foreach ($medios_pago as $medio): ?>
-                                        <option value="<?= $medio['id_medio_pago'] ?>">
-                                        <?= esc($medio['nombre_medio_pago']) ?>
-                                            </option>
-                                    <?php endforeach; ?>
+                        <label for="medio_pago" class="form-label">💳 Medio de pago</label>
+                            <select name="medio_pago" id="medio_pago" class="form-select" required>
+                                <option value="">-- Selecciona un medio de pago --</option>
+                                <option value="efectivo">Efectivo</option>
+                                <option value="transferencia">Transferencia</option>
+                                <option value="tarjeta">Tarjeta</option>
                             </select>
                     </div>
 
