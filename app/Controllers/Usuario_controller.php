@@ -66,7 +66,6 @@ class Usuario_controller extends BaseController
                 ],
             ]
         );
-
         if ($validation->withRequest($request)->run() ){
             $data = [
                     'nombre_usuario' => $this->request->getPost('nombre_usuario'),
@@ -77,10 +76,8 @@ class Usuario_controller extends BaseController
                     'id_perfil' => $this->request->getPost('id_perfil'),
                     'baja' => '0'
             ];
-
                     $usuarioModel = new Usuario_model();
                     $usuarioModel->insert($data);
-
                     session()->set([
                         'id_usuario'            => $usuarioModel->getInsertID(),
                         'nombre_usuario'        => $data['nombre_usuario'],
@@ -88,15 +85,13 @@ class Usuario_controller extends BaseController
                         'id_perfil'             => $data['id_perfil'],
                         'logueado'              => true
                     ]);
-                    return redirect()->to('/');
-                        
+                    return redirect()->to('/');             
         }
         else {
             $data['titulo'] = 'Contacto';
             $data['validation'] = $validation; // PASÁS EL OBJETO, no el array
             return view('layout/navbar', $data) . view('registro', $data) . view('layout/footer');
         }
-
     }
 
     public function login()
@@ -147,8 +142,6 @@ class Usuario_controller extends BaseController
             return redirect()->to('/login')->with('error', 'Correo o contraseña inválidos.');
         }
     }
-
-
 
     public function logout()
     {
@@ -218,7 +211,6 @@ class Usuario_controller extends BaseController
                     ],
             ]
         );
-
         if ($validation->withRequest($request)->run() ){
             $data = [
                 'nombre_mensaje' => $request->getPost('nombre_mensaje'),
@@ -226,12 +218,9 @@ class Usuario_controller extends BaseController
                 'telefono_mensaje' => $request->getPost('telefono_mensaje'),
                 'consulta_mensaje' => $request->getPost('consulta_mensaje') 
                     ];
-
                     $mensajesModel = new Mensajes_model();
                     $mensajesModel->insert($data);
-
-                    return redirect()->route('contacto')->with('mensaje_exito', 'Su consulta se envió exitosamente!');
-                        
+                    return redirect()->route('contacto')->with('mensaje_exito', 'Su consulta se envió exitosamente!');           
         }
         else{
             $data['titulo'] = 'Contacto';
@@ -248,24 +237,18 @@ class Usuario_controller extends BaseController
         $usuarioModel = new Usuario_model();
         $perfil = $this->request->getGet('perfil');
         $email = $this->request->getGet('email');
-
         $query = $usuarioModel;
-
         if (!empty($perfil)) {
             $query = $query->where('id_perfil', $perfil);
         }
-
         if (!empty($email)) {
             $query = $query->like('email_usuario', $email);
         }
-
         $data['usuarios'] = $query->findAll();
-
         return view('layout/navbarAdmin')
             . view('backend/listar_usuarios', $data)
             . view('layout/footer');
     }
-
 
     public function suspenderUsuario($id)
     {
@@ -294,8 +277,6 @@ class Usuario_controller extends BaseController
         }
         $usuarioModel = new Usuario_model();
         $usuario = $usuarioModel->find($id);
-    
-        // Cambiar entre admin (1) y usuario (2)
         $nuevoTipo = ($usuario['id_perfil'] == 1) ? 2 : 1;
         $usuarioModel->update($id, ['id_perfil' => $nuevoTipo]);
         return redirect()->to('/usuarios');
@@ -310,7 +291,6 @@ class Usuario_controller extends BaseController
         if (session('id_usuario') == $id) {
             return redirect()->to('/usuarios')->with('error', 'No puedes eliminar tu propia cuenta.');
         }
-
         $usuarioModel = new Usuario_model();
         $usuarioModel->delete($id);
         return redirect()->to('/usuarios');
@@ -321,7 +301,6 @@ class Usuario_controller extends BaseController
         $usuarioModel = new \App\Models\Usuario_model();
         $id = session('id_usuario');
         $usuario = $usuarioModel->find($id);
-
         return view('layout/navbarCliente')
             . view('backend/editar_perfil', ['usuario' => $usuario])
             . view('layout/footer');
@@ -333,15 +312,12 @@ class Usuario_controller extends BaseController
         $request = \Config\Services::request();
         $validation = \Config\Services::validation();
         $usuarioModel = new \App\Models\Usuario_model();
-
         $id_usuario         = $request->getPost('id_usuario');
         $nombre_usuario     = trim($request->getPost('nombre_usuario'));
         $apellido_usuario   = trim($request->getPost('apellido_usuario'));
         $usuario            = trim($request->getPost('usuario'));
         $email_usuario      = trim($request->getPost('email_usuario'));
         $pass_usuario       = $request->getPost('pass_usuario');
-
-        // Reglas de validación
         $validation->setRules([
             'nombre_usuario'   => 'required|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
             'apellido_usuario' => 'required|regex_match[/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/]',
@@ -372,9 +348,7 @@ class Usuario_controller extends BaseController
                 'max_length'   => 'La contraseña no debe superar los 100 caracteres'
             ],
         ]);
-
         if ($validation->withRequest($request)->run()) {
-
             // Verificar si el usuario ya existe
             $existeUsuario = $usuarioModel->where('usuario', $usuario)
                                           ->where('id_usuario !=', $id_usuario)
@@ -387,7 +361,6 @@ class Usuario_controller extends BaseController
                     .view('backend/editar_perfil', $data)
                     .view('layout/footer');
             }
-
             $existeEmail = $usuarioModel->where('email_usuario', $email_usuario)
                                         ->where('id_usuario !=', $id_usuario)
                                         ->first();
@@ -399,7 +372,6 @@ class Usuario_controller extends BaseController
                     .view('backend/editar_perfil', $data)
                     .view('layout/footer');
             }
-
             // Preparar datos
             $datosActualizar = [
                 'nombre_usuario' => $nombre_usuario,
@@ -407,11 +379,9 @@ class Usuario_controller extends BaseController
                 'usuario' => $usuario,
                 'email_usuario' => $email_usuario,
             ];
-
             if (!empty($pass_usuario)) {
                 $datosActualizar['pass_usuario'] = password_hash($pass_usuario, PASSWORD_DEFAULT);
             }
-
             $usuarioModel->update($id_usuario, $datosActualizar);
             $session->set([
                 'nombre_usuario' => $nombre_usuario,
@@ -420,7 +390,6 @@ class Usuario_controller extends BaseController
                 'email_usuario' => $email_usuario,
                 ]);
             return redirect()->to('editar_perfil')->with('success', 'Perfil actualizado correctamente.');
-
         } else {
             $data['validation'] = $validation->getErrors();
             $data['usuario'] = $usuarioModel->find($id_usuario);
@@ -430,5 +399,4 @@ class Usuario_controller extends BaseController
                 .view('layout/footer');
         }
     }
-
 }

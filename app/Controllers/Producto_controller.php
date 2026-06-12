@@ -8,7 +8,6 @@ use App\Models\Categoria_model;
 
 class Producto_controller extends BaseController
 {
-    // VALIDAR DATOS BEBIDA
     // Operación: validarDatosBebida(id_bebida)
     private function validarDatosBebida($id_bebida = null)
     {
@@ -89,10 +88,9 @@ class Producto_controller extends BaseController
                     'max_size' => 'La imagen no debe superar los 2MB.'
                 ]
             ];
-
         } else {
 
-            // En edición la imagen es opcional
+            // En caso que estemos editando/actualizando la bebida, la imagen es opcional
             if ($this->request->getFile('imagen_bebida')->isValid()) {
 
                 $rules['imagen_bebida'] = [
@@ -108,9 +106,6 @@ class Producto_controller extends BaseController
         return $this->validate($rules);
     }
 
-    // =========================================================
-    // INDEX
-    // =========================================================
     public function index()
     {
         $bebidaModel = new Bebida_model();
@@ -126,9 +121,6 @@ class Producto_controller extends BaseController
         ]);
     }
 
-    // =========================================================
-    // CATÁLOGO
-    // =========================================================
     public function catalogo()
     {
         $bebidaModel = new Bebida_model();
@@ -168,10 +160,7 @@ class Producto_controller extends BaseController
         return $this->renderizarConNavbar('catalogo', $data);
     }
 
-    // =========================================================
-    // DETALLE
     // Operación: detalle(id_bebida)
-    // =========================================================
     public function detalle($id_bebida)
     {
         $bebidaModel = new Bebida_model();
@@ -195,9 +184,6 @@ class Producto_controller extends BaseController
         );
     }
 
-    // =========================================================
-    // LISTAR BEBIDAS
-    // =========================================================
     public function listarBebidas()
     {
         if (session('id_perfil') != 1) {
@@ -239,9 +225,7 @@ class Producto_controller extends BaseController
         );
     }
 
-    // =========================================================
-    // FORM AGREGAR BEBIDA
-    // =========================================================
+    // Formulario para agregar bebida
     public function agregarBebida()
     {
         if (session('id_perfil') != 1) {
@@ -262,10 +246,7 @@ class Producto_controller extends BaseController
         );
     }
 
-    // =========================================================
-    // REGISTRAR BEBIDA
     // Operación: registrarBebida(id_bebida)
-    // =========================================================
     public function registrarBebida()
     {
         if (session('id_perfil') != 1) {
@@ -274,7 +255,6 @@ class Producto_controller extends BaseController
 
         $bebidaModel = new Bebida_model();
 
-        // VALIDAR
         if (!$this->validarDatosBebida()) {
 
             return $this->renderizarConNavbar(
@@ -289,9 +269,8 @@ class Producto_controller extends BaseController
             );
         }
 
-        //Insertamos la imagen
         $imagen = $this->request->getFile('imagen_bebida');
-        //Validamos la imagen antes de moverla para evitar errores
+        //Validamos la imagen antes de moverla para evitarnos errores
         if (!$imagen->isValid()) {
             return redirect()->back()
                 ->with('error', 'La imagen no pudo cargarse.');
@@ -328,110 +307,101 @@ class Producto_controller extends BaseController
     }
 
     public function registrarMarca()
-{
-    if (session('id_perfil') != 1) {
+    {
+        if (session('id_perfil') != 1) {
 
-        return redirect()->to('/');
-    }
+            return redirect()->to('/');
+        }
 
-    $marcaModel = new Marca_model();
+        $marcaModel = new Marca_model();
 
-    $nombre_marca =
-        trim(
-            $this->request->getPost('nombre_marca')
-        );
+        $nombre_marca =
+            trim(
+                $this->request->getPost('nombre_marca')
+            );
 
-    // VALIDAR VACÍO
+        if (empty($nombre_marca)) {
 
-    if (empty($nombre_marca)) {
+            return redirect()->back()
+                ->with(
+                    'error',
+                    'Debe ingresar un nombre de marca.'
+                );
+        }
+
+        $marcaExistente = $marcaModel
+            ->where(
+                'nombre_marca',
+                $nombre_marca
+            )
+            ->first();
+
+        if ($marcaExistente) {
+
+            return redirect()->back()
+                ->with(
+                    'error',
+                    'La marca ya existe.'
+                );
+        }
+
+        $marcaModel->insert([
+
+            'nombre_marca' =>
+            $nombre_marca
+        ]);
 
         return redirect()->back()
             ->with(
-                'error',
-                'Debe ingresar un nombre de marca.'
+                'mensaje',
+                'Marca registrada correctamente.'
             );
     }
-
-    // VALIDAR DUPLICADO
-
-    $marcaExistente = $marcaModel
-        ->where(
-            'nombre_marca',
-            $nombre_marca
-        )
-        ->first();
-
-    if ($marcaExistente) {
-
-        return redirect()->back()
-            ->with(
-                'error',
-                'La marca ya existe.'
-            );
-    }
-
-    // INSERTAR
-
-    $marcaModel->insert([
-
-        'nombre_marca' =>
-            $nombre_marca
-    ]);
-
-    return redirect()->back()
-        ->with(
-            'mensaje',
-            'Marca registrada correctamente.'
-        );
-}
 
     public function registrarCategoria()
-{
-    if (session('id_perfil') != 1) {
-        return redirect()->to('/');
-    }
+    {
+        if (session('id_perfil') != 1) {
+            return redirect()->to('/');
+        }
 
-    $categoriaModel = new Categoria_model();
+        $categoriaModel = new Categoria_model();
 
-    $nombreCategoria = trim(
-        $this->request->getPost('nombre_categoria')
-    );
+        $nombreCategoria = trim(
+            $this->request->getPost('nombre_categoria')
+        );
 
-    if (empty($nombreCategoria)) {
+        if (empty($nombreCategoria)) {
 
-        return redirect()->back()
-            ->with('error', 'Debe ingresar un nombre de categoría.');
-    }
+            return redirect()->back()
+                ->with('error', 'Debe ingresar un nombre de categoría.');
+        }
 
-    // Verificar duplicados
-    $existe = $categoriaModel
-        ->where('nombre_categoria', $nombreCategoria)
-        ->first();
+        //Verificamos duplicados
+        $existe = $categoriaModel
+            ->where('nombre_categoria', $nombreCategoria)
+            ->first();
 
-    if ($existe) {
+        if ($existe) {
+
+            return redirect()->back()
+                ->with(
+                    'error',
+                    'Ya existe una categoría con ese nombre.'
+                );
+        }
+
+        $categoriaModel->insert([
+            'nombre_categoria' => $nombreCategoria
+        ]);
 
         return redirect()->back()
             ->with(
-                'error',
-                'Ya existe una categoría con ese nombre.'
+                'mensaje',
+                'Categoría registrada correctamente.'
             );
     }
 
-    $categoriaModel->insert([
-        'nombre_categoria' => $nombreCategoria
-    ]);
-
-    return redirect()->back()
-        ->with(
-            'mensaje',
-            'Categoría registrada correctamente.'
-        );
-}
-
-    // =========================================================
-    // EDITAR
     // Operación: editar(id_bebida)
-    // =========================================================
     public function editar($id_bebida)
     {
         if (session('id_perfil') != 1) {
@@ -459,204 +429,221 @@ class Producto_controller extends BaseController
         );
     }
 
-    // =========================================================
-    // ACTUALIZAR BEBIDA
     // Operación: actualizarBebida(id_bebida)
-    // =========================================================
     public function actualizarBebida($id_bebida)
-{
-    if (session('id_perfil') != 1) {
-        return redirect()->to('/');
-    }
-
-    $bebidaModel = new Bebida_model();
-
-    $bebida = $bebidaModel->find($id_bebida);
-
-    if (!$bebida) {
-
-        return redirect()->to('gestionar_bebidas')
-            ->with('mensaje', 'Bebida no encontrada.');
-    }
-
-    // =========================================
-    // VALIDAR
-    // =========================================
-
-    if (!$this->validarDatosBebida($id_bebida)) {
-
-        return $this->renderizarConNavbar(
-            'backend/registrar_bebida',
-            [
-                'bebida' => $bebida,
-
-                'marca' =>
-                    (new Marca_model())->findAll(),
-
-                'categoria' =>
-                    (new Categoria_model())
+    {
+        if (session('id_perfil') != 1) {
+            return redirect()->to('/');
+        }
+        $bebidaModel = new Bebida_model();
+        $bebida = $bebidaModel->find($id_bebida);
+        if (!$bebida) {
+            return redirect()->to('gestionar_bebidas')
+                ->with('mensaje', 'Bebida no encontrada.');
+        }
+        if (!$this->validarDatosBebida($id_bebida)) {
+            return $this->renderizarConNavbar(
+                'backend/registrar_bebida',
+                [
+                    'bebida' => $bebida,
+                    'marca' => (new Marca_model())->findAll(),
+                    'categoria' => (new Categoria_model())
                         ->orderBy(
                             'nombre_categoria',
                             'ASC'
                         )
                         ->findAll(),
-
-                'validation' => $this->validator
-            ]
-        );
-    }
-
-    // =========================================
-    // DATOS
-    // =========================================
-
-    $datos = [
-
-        'nombre_bebida' =>
-            $this->request
-                ->getPost('nombre_bebida'),
-
-        'descripcion_bebida' =>
-            $this->request
-                ->getPost('descripcion_bebida'),
-
-        'precio_bebida' =>
-            $this->request
-                ->getPost('precio_bebida'),
-
-        'stock_bebida' =>
-            $this->request
-                ->getPost('stock_bebida'),
-
-        'volumen_bebida' =>
-            $this->request
-                ->getPost('volumen_bebida'),
-
-        'grado_bebida' =>
-            $this->request
-                ->getPost('grado_bebida'),
-
-        'id_marca' =>
-            $this->request
-                ->getPost('id_marca'),
-
-        'id_categoria' =>
-            $this->request
-                ->getPost('id_categoria'),
-    ];
-
-    // =========================================
-    // NUEVA IMAGEN
-    // =========================================
-
-    $imagen = $this->request
-        ->getFile('imagen_bebida');
-
-    if (
-        $imagen &&
-        $imagen->isValid() &&
-        !$imagen->hasMoved()
-    ) {
-
-        $nombreImagen =
-            $imagen->getRandomName();
-
-        $imagen->move(
-            ROOTPATH . 'assets/upload',
-            $nombreImagen
-        );
-
-        // BORRAR IMAGEN ANTERIOR
-
-        if (
-            !empty($bebida['imagen_bebida']) &&
-            file_exists(
-                ROOTPATH .
-                'assets/upload/' .
-                $bebida['imagen_bebida']
-            )
-        ) {
-
-            unlink(
-                ROOTPATH .
-                'assets/upload/' .
-                $bebida['imagen_bebida']
-            );
-        }
-
-        $datos['imagen_bebida'] =
-            $nombreImagen;
-    }
-
-
-    // PROCEDIMIENTO ALMACENADO ACTUALIZAR BEBIDA
-
-    $db = \Config\Database::connect();
-
-    try {
-
-        $db->query(
-            "CALL sp_actualizar_bebida(
-                ?, ?, ?, ?, ?, ?, ?, ?, ?
-            )",
-            [
-
-                $id_bebida,
-
-                $datos['nombre_bebida'],
-
-                $datos['descripcion_bebida'],
-
-                $datos['precio_bebida'],
-
-                $datos['stock_bebida'],
-
-                $datos['volumen_bebida'],
-
-                $datos['grado_bebida'],
-
-                $datos['id_categoria'],
-
-                $datos['id_marca']
-            ]
-        );
-
-        // ACTUALIZAMOS LA IMAGEN DE LA BEBIDA SI SE SUBIÓ UNA NUEVA    
-
-        if (
-            isset($datos['imagen_bebida'])
-        ) {
-
-            $bebidaModel->update(
-                $id_bebida,
-                [
-                    'imagen_bebida' =>
-                        $datos['imagen_bebida']
+                    'validation' => $this->validator
                 ]
             );
         }
+        $datos = [
+            'nombre_bebida' =>
+            $this->request
+                ->getPost('nombre_bebida'),
 
-    } catch (\Exception $e) {
+            'descripcion_bebida' =>
+            $this->request
+                ->getPost('descripcion_bebida'),
 
-        return redirect()->back()
-            ->with(
-                'error',
-                $e->getMessage()
+            'precio_bebida' =>
+            $this->request
+                ->getPost('precio_bebida'),
+
+            'stock_bebida' =>
+            $this->request
+                ->getPost('stock_bebida'),
+
+            'volumen_bebida' =>
+            $this->request
+                ->getPost('volumen_bebida'),
+
+            'grado_bebida' =>
+            $this->request
+                ->getPost('grado_bebida'),
+
+            'id_marca' =>
+            $this->request
+                ->getPost('id_marca'),
+
+            'id_categoria' =>
+            $this->request
+                ->getPost('id_categoria'),
+        ];
+        $imagen = $this->request
+            ->getFile('imagen_bebida');
+        if (
+            $imagen &&
+            $imagen->isValid() &&
+            !$imagen->hasMoved()
+        ) {
+            $nombreImagen =
+                $imagen->getRandomName();
+
+            $imagen->move(
+                ROOTPATH . 'assets/upload',
+                $nombreImagen
             );
+            if (
+                !empty($bebida['imagen_bebida']) &&
+                file_exists(
+                    ROOTPATH .
+                        'assets/upload/' .
+                        $bebida['imagen_bebida']
+                )
+            ) {
+                unlink(
+                    ROOTPATH .
+                        'assets/upload/' .
+                        $bebida['imagen_bebida']
+                );
+            }
+            $datos['imagen_bebida'] =
+                $nombreImagen;
+        }
+        // PROCEDIMIENTO ALMACENADO ACTUALIZAR BEBIDA
+        $db = \Config\Database::connect();
+        try {
+            $db->query(
+                "CALL sp_actualizar_bebida(
+                ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )",
+                [
+                    $id_bebida,
+                    $datos['nombre_bebida'],
+                    $datos['descripcion_bebida'],
+                    $datos['precio_bebida'],
+                    $datos['stock_bebida'],
+                    $datos['volumen_bebida'],
+                    $datos['grado_bebida'],
+                    $datos['id_categoria'],
+                    $datos['id_marca']
+                ]
+            );
+            // ACTUALIZAMOS LA IMAGEN DE LA BEBIDA SI SE SUBIÓ UNA NUEVA    
+            if (
+                isset($datos['imagen_bebida'])
+            ) {
+                $bebidaModel->update(
+                    $id_bebida,
+                    [
+                        'imagen_bebida' =>
+                        $datos['imagen_bebida']
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with(
+                    'error',
+                    $e->getMessage()
+                );
+        }
+        return redirect()->to(
+            'gestionar_bebidas'
+        )->with(
+            'mensaje',
+            'Bebida actualizada correctamente.'
+        );
     }
 
-    return redirect()->to(
-        'gestionar_bebidas'
-    )->with(
-        'mensaje',
-        'Bebida actualizada correctamente.'
-    );
-}
+    //Operación deshabilitar(id_bebida)
+    public function deshabilitar($id_bebida)
+    {
+        if (session('id_perfil') != 1) {
+            return redirect()->to('/');
+        }
+        $bebidaModel = new Bebida_model();
+        $bebida = $bebidaModel->find($id_bebida);
+        if (!$bebida) {
+            return redirect()->to('gestionar_bebidas')
+                ->with(
+                    'error',
+                    'Bebida no encontrada.'
+                );
+        }
+        (new Bebida_model())->update($id_bebida, [
+            'estado_bebida' => 0
+        ]);
+        return redirect()->to('gestionar_bebidas')
+            ->with('mensaje', 'Bebida deshabilitada correctamente.');
+    }
 
-    // =========================================================
-    // ELIMINAR
+    //OPeracicón habilitar(id_bebida)
+    public function habilitar($id_bebida)
+    {
+        if (session('id_perfil') != 1) {
+            return redirect()->to('/');
+        }
+        (new Bebida_model())->update($id_bebida, [
+            'estado_bebida' => 1
+        ]);
+        return redirect()->to('gestionar_bebidas')
+            ->with('mensaje', 'Bebida habilitada correctamente.');
+    }
+
+    //Operación gestionarBebidas()
+    public function gestionarBebidas()
+    {
+        if (session('id_perfil') != 1) {
+            return redirect()->to('/');
+        }
+        $bebidaModel = new Bebida_model();
+        $busqueda = $this->request->getGet('busqueda');
+        $categoriaSeleccionada = $this->request->getGet('categoria');
+
+        $bebidaModel
+            ->select('bebida.*, marca.nombre_marca, categoria.nombre_categoria')
+            ->join('marca', 'bebida.id_marca = marca.id_marca', 'left')
+            ->join('categoria', 'bebida.id_categoria = categoria.id_categoria', 'left');
+        if ($busqueda) {
+            $bebidaModel->groupStart()
+                ->like('bebida.nombre_bebida', $busqueda)
+                ->orLike('marca.nombre_marca', $busqueda)
+                ->groupEnd();
+        }
+        if ($categoriaSeleccionada) {
+            $bebidaModel->where(
+                'bebida.id_categoria',
+                $categoriaSeleccionada
+            );
+        }
+        $data = [
+            'bebida' => $bebidaModel->findAll(),
+            'categoria' => (new Categoria_model())
+                ->orderBy('nombre_categoria', 'ASC')
+                ->findAll(),
+            'busqueda' => $busqueda,
+            'categoriaSeleccionada' => $categoriaSeleccionada
+        ];
+
+        return $this->renderizarConNavbar(
+            'backend/gestionar_bebidas',
+            $data
+        );
+    }
+
     // Operación: eliminar(id_bebida)
-    // =========================================================
     public function eliminar($id_bebida)
     {
         if (session('id_perfil') != 1) {
@@ -667,92 +654,5 @@ class Producto_controller extends BaseController
 
         return redirect()->to('gestionar_bebidas')
             ->with('mensaje', 'Bebida eliminada correctamente.');
-    }
-
-    // =========================================================
-    // DESHABILITAR
-    // =========================================================
-    public function deshabilitar($id_bebida)
-    {
-        if (session('id_perfil') != 1) {
-            return redirect()->to('/');
-        }
-
-        (new Bebida_model())->update($id_bebida, [
-            'estado_bebida' => 0
-        ]);
-
-        return redirect()->to('gestionar_bebidas')
-            ->with('mensaje', 'Bebida deshabilitada correctamente.');
-    }
-
-    // =========================================================
-    // HABILITAR
-    // =========================================================
-    public function habilitar($id_bebida)
-    {
-        if (session('id_perfil') != 1) {
-            return redirect()->to('/');
-        }
-
-        (new Bebida_model())->update($id_bebida, [
-            'estado_bebida' => 1
-        ]);
-
-        return redirect()->to('gestionar_bebidas')
-            ->with('mensaje', 'Bebida habilitada correctamente.');
-    }
-
-    // =========================================================
-    // GESTIONAR BEBIDAS
-    // =========================================================
-    public function gestionarBebidas()
-    {
-        if (session('id_perfil') != 1) {
-            return redirect()->to('/');
-        }
-
-        $bebidaModel = new Bebida_model();
-
-        $busqueda = $this->request->getGet('busqueda');
-        $categoriaSeleccionada = $this->request->getGet('categoria');
-
-        $bebidaModel
-            ->select('bebida.*, marca.nombre_marca, categoria.nombre_categoria')
-            ->join('marca', 'bebida.id_marca = marca.id_marca', 'left')
-            ->join('categoria', 'bebida.id_categoria = categoria.id_categoria', 'left');
-
-        if ($busqueda) {
-
-            $bebidaModel->groupStart()
-                ->like('bebida.nombre_bebida', $busqueda)
-                ->orLike('marca.nombre_marca', $busqueda)
-                ->groupEnd();
-        }
-
-        if ($categoriaSeleccionada) {
-            $bebidaModel->where(
-                'bebida.id_categoria',
-                $categoriaSeleccionada
-            );
-        }
-
-        $data = [
-
-            'bebida' => $bebidaModel->findAll(),
-
-            'categoria' => (new Categoria_model())
-                ->orderBy('nombre_categoria', 'ASC')
-                ->findAll(),
-
-            'busqueda' => $busqueda,
-
-            'categoriaSeleccionada' => $categoriaSeleccionada
-        ];
-
-        return $this->renderizarConNavbar(
-            'backend/gestionar_bebidas',
-            $data
-        );
     }
 }

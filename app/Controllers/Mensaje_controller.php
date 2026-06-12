@@ -50,16 +50,11 @@ class Mensaje_controller extends BaseController
             ],
         ],
         );
-        
-        // Validar
         if (!$validation->withRequest($this->request)->run()) {
             // Devolver la vista con los errores
             return view('layout/navbar').view('contacto', [
                 'validation' => $validation]).view('layout/footer');
         }
-
-
-        // Obtener datos enviados por POST
         $data = [
             'nombre_mensaje'   => $this->request->getPost('nombre_mensaje'),
             'mail_mensaje'     => $this->request->getPost('mail_mensaje'),
@@ -67,11 +62,7 @@ class Mensaje_controller extends BaseController
             'consulta_mensaje' => $this->request->getPost('consulta_mensaje'),
             'estado_mensaje' => 0,
         ];
-
-        // Guardar en la base de datos
         $mensajeModel->insert($data);
-
-        // Redirigir o mostrar mensaje
         return redirect()->to('/contacto')->with('mensaje', 'Consulta enviada correctamente');
     }
 
@@ -96,27 +87,17 @@ class Mensaje_controller extends BaseController
    public function marcar_leido($id) 
     {
         if (session('id_perfil') != 1) return redirect()->to('/');
-    
         $mensajeModel = new \App\Models\Mensajes_model();
-    
-        // Depuración: Verificar si el registro existe
         if (!$mensajeModel->find($id)) {
             return redirect()->to('ver_consultas')->with('error', 'Consulta no encontrada');
         }
-
-        // Obtener estado actual y alternarlo
         $estadoActual = $mensajeModel->where('id_mensaje', $id)->first()['estado_mensaje'];
         $nuevoEstado = $estadoActual ? 0 : 1;
-
-        // Actualizar con protección desactivada temporalmente
         $mensajeModel->protect(false)->update($id, ['estado_mensaje' => $nuevoEstado]);
-    
-        // Verificar si se actualizó
         $mensajeActualizado = $mensajeModel->find($id);
         if ($mensajeActualizado['estado_mensaje'] != $nuevoEstado) {
             log_message('error', "Fallo al actualizar mensaje ID: {$id}");
         }
-
         return redirect()->to('ver_consultas')->with('mensaje', 'Estado de lectura actualizado');
     }
 }
