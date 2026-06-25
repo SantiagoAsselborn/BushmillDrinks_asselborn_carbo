@@ -23,4 +23,18 @@ class Marca_model extends Model
     protected $validationRules = [];
     protected $validationMessages = [];
     protected $skipValidation = false;
+
+    /* Operación: registrar_marca()*/
+    public function registrar_marca($nombre_marca)
+    {
+        return $this->insert([
+            'nombre_marca' => $nombre_marca
+        ]);
+    }
+
+    /* Operación: listar_marcas()*/
+    public function listar_marcas()
+    {
+        return $this->orderBy('nombre_marca', 'ASC')->findAll();
+    }
 }

@@ -66,7 +66,28 @@
                                 <strong><?= esc($p['nombre_bebida']) ?></strong><br>
                                 <small class="text-muted"><?= esc(substr($p['descripcion_bebida'], 0, 40)) ?>...</small>
                             </td>
-                            <td class="text-center">$<?= number_format($p['precio_bebida'], 2, ',', '.') ?></td>
+                            
+                            <td class="text-center">
+                                <?php if (!empty($p['estado_promocion']) && $p['estado_promocion'] == 1): ?>
+                                    <span class="text-muted text-decoration-line-through d-block" style="font-size: 0.85rem;">
+                                        $<?= number_format($p['precio_bebida'], 2, ',', '.') ?>
+                                    </span>
+                                    
+                                    <?php 
+                                        // Calculamos el precio final restando el descuento
+                                        $precioFinal = $p['precio_bebida'] * (1 - ($p['valor_promocion'] / 100)); 
+                                    ?>
+                                    <span class="text-danger fw-bold d-block" style="font-size: 1.1rem;">
+                                        $<?= number_format($precioFinal, 2, ',', '.') ?>
+                                    </span>
+
+                                    <span class="badge bg-success" style="font-size: 0.75rem;" title="Vence el <?= date('d/m/Y', strtotime($p['fecha_fin'])) ?>">
+                                        <i class="bi bi-tag-fill"></i> <?= number_format($p['valor_promocion'], 0) ?>% OFF
+                                    </span>
+                                <?php else: ?>
+                                    <span class="fw-bold">$<?= number_format($p['precio_bebida'], 2, ',', '.') ?></span>
+                                <?php endif; ?>
+                            </td>
                             <td class="text-center">
                                 <span class="badge <?= $p['stock_bebida'] <= 5 ? 'bg-danger' : 'bg-secondary' ?>">
                                     <?= esc($p['stock_bebida']) ?>
@@ -83,20 +104,20 @@
                                 <div class="btn-group" role="group">
                                     <a href="<?= site_url('editar_bebida/' . $p['id_bebida']) ?>" 
                                        class="btn btn-sm btn-outline-warning" title="Editar">
-                                       <i class="bi bi-pencil"></i>
+                                        <i class="bi bi-pencil"></i>
                                     </a>
                                     
                                     <?php if ($p['estado_bebida']): ?>
                                         <a href="<?= site_url('deshabilitar_bebida/' . $p['id_bebida']) ?>" 
                                            class="btn btn-sm btn-outline-secondary" 
                                            onclick="return confirm('¿Deseás deshabilitar esta bebida?');">
-                                           <i class="bi bi-eye-slash"></i>
+                                            <i class="bi bi-eye-slash"></i>
                                         </a>
                                     <?php else: ?>
                                         <a href="<?= site_url('habilitar_bebida/' . $p['id_bebida']) ?>" 
                                            class="btn btn-sm btn-outline-success" 
                                            onclick="return confirm('¿Deseás habilitar esta bebida?');">
-                                           <i class="bi bi-eye"></i>
+                                            <i class="bi bi-eye"></i>
                                         </a>
                                     <?php endif; ?>
                                 </div>
@@ -119,4 +140,3 @@
         }
     }, 4000);
 </script>
-

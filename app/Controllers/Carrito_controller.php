@@ -43,10 +43,18 @@ class Carrito_controller extends BaseController
         if (session('id_perfil') != 2) {
             return redirect()->to('/');
         }
+        
         $cart = \Config\Services::cart();
         $bebidaModel = new Bebida_model();
         $id = $this->request->getPost('id');
-        $bebida = $bebidaModel->find($id);
+        
+        // Buscamos la bebida acoplando la promoción vigente (si existiera)
+        $bebida = $bebidaModel
+            ->select('bebida.*, promocion.tipo_promocion, promocion.valor_promocion, promocion.estado_promocion')
+            ->join('promocion', 'bebida.id_bebida = promocion.id_bebida AND promocion.estado_promocion = 1', 'left')
+            ->where('bebida.id_bebida', $id)
+            ->first();
+
         if (!$bebida) {
             return redirect()->back()
                 ->with('error_stock', 'Bebida no encontrada.');
@@ -55,12 +63,27 @@ class Carrito_controller extends BaseController
             return redirect()->back()
                 ->with('error_stock', 'Sin stock disponible.');
         }
+
+        // Determinamos el precio de venta final
+        $tienePromo = (!empty($bebida['estado_promocion']) && $bebida['estado_promocion'] == 1);
+        $precioVenta = $bebida['precio_bebida'];
+
+        if ($tienePromo && $bebida['tipo_promocion'] === 'descuento') {
+            $precioVenta = $bebida['precio_bebida'] * (1 - ($bebida['valor_promocion'] / 100));
+        }
+
+        // Insertamos en el carrito con las opciones requeridas por tu vista
         $cart->insert([
-            'id'    => $bebida['id_bebida'],
-            'qty'   => 1,
-            'price' => $bebida['precio_bebida'],
-            'name'  => $bebida['nombre_bebida']
+            'id'      => $bebida['id_bebida'],
+            'qty'     => 1,
+            'price'   => number_format($precioVenta, 2, '.', ''), // Aseguramos formato string limpio
+            'name'    => $bebida['nombre_bebida'],
+            'options' => [
+                // Pasamos el precio original únicamente si hay un descuento real aplicado
+                'precio_original' => $tienePromo ? $bebida['precio_bebida'] : null
+            ]
         ]);
+
         return redirect()->to('ver_carrito')
             ->with('mensaje_carrito', 'Bebida agregada correctamente.');
     }
@@ -249,12 +272,13 @@ class Carrito_controller extends BaseController
         ]);
         // DETALLES + ACTUALIZAR STOCK
         foreach ($cart1 as $item) {
-            $detalleVentaModel->insert([
+            $datosDetalle = [
                 'id_venta'         => $id_venta,
                 'id_bebida'        => $item['id'],
                 'detalle_cantidad' => $item['qty'],
                 'detalle_precio'   => $item['price']
-            ]);
+            ];
+            $detalleVentaModel->registrar_detalle($datosDetalle);
             $bebida = $bebidaModel->find($item['id']);
             $bebidaModel->update($item['id'], [
                 'stock_bebida' => $bebida['stock_bebida'] - $item['qty']
@@ -324,7 +348,7 @@ class Carrito_controller extends BaseController
                 ->findAll();
             $productosVenta = [];
             foreach ($detalles as $d) {
-                $subtotal = $d['detalle_cantidad'] * $d['detalle_precio'];
+                $subtotal = $detalleVentaModel->calcular_subtotal($d['detalle_precio'], $d['detalle_cantidad']);
                 $productosVenta[] = [
                     'nombre'   => $d['nombre_bebida'],
                     'cantidad' => $d['detalle_cantidad'],
@@ -432,9 +456,7 @@ class Carrito_controller extends BaseController
             $productos = [];
             $total_venta = 0;
             foreach ($detalles as $detalle) {
-                $subtotal =
-                    $detalle['detalle_cantidad'] *
-                    $detalle['detalle_precio'];
+                $subtotal = $detalleVentaModel->calcular_subtotal($detalle['detalle_precio'], $detalle['detalle_cantidad']);
                 $total_venta += $subtotal;
                 $productos[] = [
                     'nombre' => $detalle['nombre_bebida'],

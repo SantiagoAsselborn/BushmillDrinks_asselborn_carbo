@@ -23,4 +23,19 @@ class Categoria_model extends Model
     protected $validationRules = [];
     protected $validationMessages = [];
     protected $skipValidation = false;
+
+
+    /* Operación: registrar_categoria(nombre_categoria)*/
+    public function registrar_categoria($nombre_categoria)
+    {
+        return $this->insert([
+            'nombre_categoria' => $nombre_categoria
+        ]);
+    }
+
+    /* Operación: listar_categorias()*/
+    public function listar_categorias()
+    {
+        return $this->orderBy('nombre_categoria', 'ASC')->findAll();
+    }
 }

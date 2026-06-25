@@ -23,4 +23,21 @@ class Detalle_ventas_model extends Model
     protected $validationRules    = [];
     protected $validationMessages = [];
     protected $skipValidation     = false;
+
+    /* Operación: registrar_detalle()*/
+    public function registrar_detalle($data)
+    {
+        return $this->insert([
+            'id_venta'         => $data['id_venta'],
+            'id_bebida'        => $data['id_bebida'],
+            'detalle_cantidad' => $data['detalle_cantidad'],
+            'detalle_precio'   => $data['detalle_precio']
+        ]);
+    }
+
+    /*Operación: calcular_subtotal()*/
+    public function calcular_subtotal($precio, $cantidad)
+    {
+        return $precio * $cantidad;
+    }
 }
