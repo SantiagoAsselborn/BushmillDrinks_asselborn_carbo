@@ -63,6 +63,7 @@ $routes->post('agregar_carrito', 'Carrito_controller::agregar_carrito');
 $routes->get('eliminar_item/(:any)', 'Carrito_controller::eliminar_item/$1');
 $routes->get('vaciar_carrito', 'Carrito_controller::vaciar_carrito');
 $routes->get('ordenar_compra', 'Carrito_controller::ordenar_compra');
+$routes->post('carrito/obtenerFormularioPago','Carrito_controller::obtenerFormularioPago');
 $routes->post('confirmar_compra', 'Carrito_controller::confirmar_compra');
 $routes->get('guardar_venta', 'Carrito_controller::guardar_venta');
 $routes->post('actualizar_cantidad', 'Carrito_controller::actualizar_cantidad');

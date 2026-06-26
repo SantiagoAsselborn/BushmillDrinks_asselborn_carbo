@@ -43,11 +43,11 @@ class Carrito_controller extends BaseController
         if (session('id_perfil') != 2) {
             return redirect()->to('/');
         }
-        
+
         $cart = \Config\Services::cart();
         $bebidaModel = new Bebida_model();
         $id = $this->request->getPost('id');
-        
+
         // Buscamos la bebida acoplando la promoción vigente (si existiera)
         $bebida = $bebidaModel
             ->select('bebida.*, promocion.tipo_promocion, promocion.valor_promocion, promocion.estado_promocion')
@@ -110,6 +110,18 @@ class Carrito_controller extends BaseController
         return redirect()->to('ver_carrito');
     }
 
+    public function obtenerFormularioPago()
+    {
+        $medio = $this->request->getPost('medio');
+        $total = $this->request->getPost('total');
+
+        $estrategia = PagoFactory::crear($medio);
+
+        return $this->response->setJSON(
+            $estrategia->obtenerDatosVista($total)
+        );
+    }
+
     //Operación ordenar_compra()
     public function ordenar_compra()
     {
@@ -131,10 +143,12 @@ class Carrito_controller extends BaseController
             ->where('estado_medio_pago', 1)
             ->orderBy('nombre_medio_pago', 'ASC')
             ->findAll();
+        $cart = \Config\Services::cart();
         return $this->renderizarConNavbar('backend/confirmar_compra_form', [
             'ciudades' => $ciudades,
             'provincias' => $provincias,
-            'medios_pago' => $medios_pago
+            'medios_pago' => $medios_pago,
+            'total'        => $cart->total()
         ]);
     }
 
